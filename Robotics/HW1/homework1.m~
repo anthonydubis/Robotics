@@ -40,7 +40,7 @@ function homework1( serPort )
 
 % Start the timer and set initial distance
 tStart= tic;
-maxDuration = 600;
+maxDuration = 120;
 
 % Reset value in DistanceSensorRoomba by calling it
 Initial_Distance = DistanceSensorRoomba(serPort);   % Get the Initial Distance
@@ -58,7 +58,7 @@ while toc(tStart) < maxDuration
 %     display(bumpRight)
 %     display(bumpFront)
 %     display(wallSensor)
-%     display(DistanceSensorRoomba(serPort));
+    display(DistanceSensorRoomba(serPort));
     
     if ~tracingObject
         if bumpRight || bumpLeft || bumpFront || wallSensor
@@ -87,13 +87,10 @@ while toc(tStart) < maxDuration
             turnAngle(serPort, .2, -5);
             SetFwdVelRadiusRoomba(serPort, .1, inf);
         end
-        
         pause(0.2);
-        
         dist_travelled = DistanceSensorRoomba(serPort);
         curr_angle = curr_angle + AngleSensorRoomba(serPort);
         pos = updatePosition(pos, dist_travelled, curr_angle);
-        display(pos);
     end
 end
 %==========================================================================
@@ -103,7 +100,7 @@ end
 function pos = updatePosition(last_pos, dist_travelled, curr_angle)
 
 pos = [0 0];
-pos(1) = last_pos(1) + dist_travelled * cos(curr_angle);
-pos(2) = last_pos(2) + dist_travelled * sin(curr_angle);
+pos(1) = last_pos(1) + dist_travelled * sin(curr_angle);
+pos(2) =
 
 end

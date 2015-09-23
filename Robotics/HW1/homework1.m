@@ -58,7 +58,7 @@ while toc(tStart) < maxDuration
     display(wallSensor)
     
     if ~tracingObject
-        if bumpRight || bumpLeft || bumpFront
+        if bumpRight || bumpLeft || bumpFront || wallSensor
             % We hit an object, time to begin tracing
             tracingObject = true;
         else
@@ -73,11 +73,11 @@ while toc(tStart) < maxDuration
             SetFwdVelRadiusRoomba(serPort, .1, inf);
         elseif wallSensor
             % The wall is still close - go straight to keep tracing
-            SetFwdVelRadiusRoomba(serPort, 0.5, inf);
+            SetFwdVelRadiusRoomba(serPort, 0.4, inf);
             % TRY - longer pause here, shorter pause elsewhere
         else
             % We've lost bumper contact and broken the wall sensor, turn
-            % back right to re-engage 
+            % back right to re-engage
             turnAngle(serPort, .2, -5)
             SetFwdVelRadiusRoomba(serPort, .1, inf);
         end

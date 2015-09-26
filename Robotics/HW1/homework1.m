@@ -43,7 +43,7 @@ tStart= tic;
 maxDuration = 600;
 
 % Specify how close we have to come back to the starting point to finish
-thresh = .15;
+thresh = .05;
 
 % Set initial values
 pos = [0 0];
@@ -55,6 +55,9 @@ tracingObject = false;
 % robot has returned to the starting point at the beginning of the journey
 global hasLeftIntialContactRegion;
 hasLeftIntialContactRegion = false;
+
+% Reset sensors
+[~, ~, ~, ~, ~, ~] = BumpsWheelDropsSensorsRoomba(serPort);
 
 while toc(tStart) < maxDuration
     % Get and display sensor values
@@ -71,12 +74,13 @@ while toc(tStart) < maxDuration
         else
             % Keep moving forward until we hit an object
             SetFwdVelRadiusRoomba(serPort, 0.3, inf);
-            pause(1);
         end
     else
         if bumpRight || bumpLeft || bumpFront
             % We're in contact with an object, rotate left 
-            turnAngle(serPort, .2, 5);
+            SetFwdVelRadiusRoomba(serPort, -.5, inf);
+            pause(.05);
+            turnAngle(serPort, .2, 30);
             SetFwdVelRadiusRoomba(serPort, .1, inf);
         elseif wallSensor
             % The wall is still close - go straight to keep tracing
@@ -85,11 +89,10 @@ while toc(tStart) < maxDuration
         else
             % We've lost bumper contact and broken the wall sensor, turn
             % back right to re-engage
-            turnAngle(serPort, .2, -5);
-            SetFwdVelRadiusRoomba(serPort, .1, inf);
+            SetFwdVelRadiusRoomba(serPort, .1, -.1);
         end
         
-        pause(0.2);
+        pause(0.05);
         
         % Update the new position based on the new orientation and distance
         % travelled
@@ -103,6 +106,8 @@ while toc(tStart) < maxDuration
         end
     end
 end
+
+SetFwdVelRadiusRoomba(serPort, 0, inf);
 
 end
 

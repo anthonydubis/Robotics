@@ -43,7 +43,7 @@ tStart= tic;
 maxDuration = 600;
 
 % Specify how close we have to come back to the starting point to finish
-thresh = .3;
+thresh = .5;
 
 % Set initial values
 pos = [0 0];
@@ -60,7 +60,7 @@ hasLeftIntialContactRegion = false;
 [~, ~, ~, ~, ~, ~] = BumpsWheelDropsSensorsRoomba(serPort);
 
 % Set the robot to move forward
-SetFwdVelRadiusRoomba(serPort, 0.1, inf);
+SetFwdVelRadiusRoomba(serPort, 0.2, inf);
 
 while toc(tStart) < maxDuration
     % Get and display sensor values
@@ -71,7 +71,7 @@ while toc(tStart) < maxDuration
         if bumpRight || bumpLeft || bumpFront || wallSensor
             % We hit an object, time to begin tracing
             tracingObject = true;
-            
+            SetFwdVelRadiusRoomba(serPort, 0, inf);
             % Reset the angle and distance sensors
             AngleSensorRoomba(serPort);
             DistanceSensorRoomba(serPort);
@@ -80,21 +80,21 @@ while toc(tStart) < maxDuration
         if bumpRight || bumpLeft || bumpFront
             % We're in contact with an object, rotate left 
             SetFwdVelRadiusRoomba(serPort, -0.1, inf);
-            pause(0.1);
-            turnAngle(serPort, .2, 25);
-            SetFwdVelRadiusRoomba(serPort, .2, inf);
-            pause(0.1);
+            pause(0.05);
+            turnAngle(serPort, .2, 15);
+            SetFwdVelRadiusRoomba(serPort, .15, inf);
+            pause(0.05);
         elseif wallSensor
             % The wall is still close - go straight to keep tracing
             SetFwdVelRadiusRoomba(serPort, 0.4, inf);
             % TRY - longer pause here, shorter pause elsewhere
-            pause(0.1);
+            pause(0.05);
         else
             % We've lost bumper contact and broken the wall sensor, turn
             % back right to re-engage
-            % turnAngle(serPort, .2, -5);
-            SetFwdVelRadiusRoomba(serPort, .3, -0.15);
-            pause(0.1);
+            turnAngle(serPort, .2, -10);
+            SetFwdVelRadiusRoomba(serPort, .15, inf);
+            pause(0.05);
         end
         
         % Update the new position based on the new orientation and distance
@@ -106,7 +106,7 @@ while toc(tStart) < maxDuration
         
         % Break out of the loop if we've returned to the starting point
         if hasReturned(pos, thresh)
-            SetFwdVelRadiusRoomba(r, 0, inf);
+            SetFwdVelRadiusRoomba(serPort, 0, inf);
             break;
         end
     end

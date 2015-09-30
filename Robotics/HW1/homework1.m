@@ -38,12 +38,55 @@ function homework1( serPort )
 % 4. While Loop with Maximum Time and Distance Sensor
 %==========================================================================
 
+% Update this variable based on whether running on the simulator
+isSimulator = true;
+
+% Configurations based on isSimulator boolean
+% thresh is how close we need to get back to our initial point of contact
+thresh = 0.5;
+if isSimulator 
+    thresh = 0.3; 
+end
+
+% backwards velocity used after running into an object
+back_vel = -0.1;
+if isSimulator
+    back_vel = 0.0;
+end
+
+% Initial forward velocity
+initial_vel = 0.2;
+if isSimulator
+    initial_vel = 0.45;
+end
+
+% Left turn angle
+left_turn_angle = 15;
+if isSimulator
+    left_turn_angle = 5;
+end
+
+% Forward velocity after a left turn
+left_forw_vel = .15;
+if isSimulator
+    left_forw_vel = .05;
+end
+
+% Right turn angle
+right_turn_angle = -10;
+if isSimulator
+    right_turn_angle = -7;
+end
+
+% Forward velocity after a right turn
+right_forw_vel = .15;
+if isSimulator
+    right_forw_vel = .2;
+end
+
 % Start the timer and set initial distance
 tStart= tic;
 maxDuration = 600;
-
-% Specify how close we have to come back to the starting point to finish
-thresh = .5;
 
 % Set initial values
 pos = [0 0];
@@ -60,7 +103,7 @@ hasLeftIntialContactRegion = false;
 [~, ~, ~, ~, ~, ~] = BumpsWheelDropsSensorsRoomba(serPort);
 
 % Set the robot to move forward
-SetFwdVelRadiusRoomba(serPort, 0.2, inf);
+SetFwdVelRadiusRoomba(serPort, initial_vel, inf);
 
 while toc(tStart) < maxDuration
     % Get and display sensor values
@@ -79,10 +122,10 @@ while toc(tStart) < maxDuration
     else
         if bumpRight || bumpLeft || bumpFront
             % We're in contact with an object, rotate left 
-            SetFwdVelRadiusRoomba(serPort, -0.1, inf);
+            SetFwdVelRadiusRoomba(serPort, back_vel, inf);
             pause(0.05);
-            turnAngle(serPort, .2, 15);
-            SetFwdVelRadiusRoomba(serPort, .15, inf);
+            turnAngle(serPort, .2, left_turn_angle);
+            SetFwdVelRadiusRoomba(serPort, left_forw_vel, inf);
             pause(0.05);
         elseif wallSensor
             % The wall is still close - go straight to keep tracing
@@ -92,8 +135,8 @@ while toc(tStart) < maxDuration
         else
             % We've lost bumper contact and broken the wall sensor, turn
             % back right to re-engage
-            turnAngle(serPort, .2, -10);
-            SetFwdVelRadiusRoomba(serPort, .15, inf);
+            turnAngle(serPort, .2, right_turn_angle);
+            SetFwdVelRadiusRoomba(serPort, right_forw_vel, inf);
             pause(0.05);
         end
         

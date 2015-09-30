@@ -42,58 +42,7 @@ function homework1( serPort )
 isSimulator = true;
 
 % Configurations based on isSimulator boolean
-% thresh is how close we need to get back to our initial point of contact
-thresh = 0.5;
-if isSimulator 
-    thresh = 0.3; 
-end
-
-% backwards velocity used after running into an object
-back_vel = -0.1;
-if isSimulator
-    back_vel = 0.0;
-end
-
-% backwards pause
-backwards_pause = 0.05;
-if isSimulator
-    backwards_pause = 0.0;
-end
-
-% Initial forward velocity
-initial_vel = 0.2;
-if isSimulator
-    initial_vel = 0.45;
-end
-
-% Left turn angle
-left_turn_angle = 15;
-if isSimulator
-    left_turn_angle = 5;
-end
-
-% Forward velocity after a left turn
-left_forw_vel = .15;
-if isSimulator
-    left_forw_vel = .05;
-end
-
-% Right turn angle
-right_turn_angle = -10;
-if isSimulator
-    right_turn_angle = -7;
-end
-
-% Forward velocity after a right turn
-right_forw_vel = .15;
-if isSimulator
-    right_forw_vel = .2;
-end
-
-end_of_loop_pause = 0.0;
-if isSimulator
-    end_of_loop_pause = 0.1;
-end
+[thresh, back_vel, backwards_pause, initial_vel, left_turn_angle, left_forw_vel, right_turn_angle, right_forw_vel, end_of_loop_pause] = getConfig(isSimulator);
 
 % Start the timer and set initial distance
 tStart= tic;
@@ -211,6 +160,31 @@ else
         % The Create is back to where its started within the distance threshold
         returned = true;
     end
+end
+end
+
+function [thresh, back_vel, backwards_pause, initial_vel, left_turn_angle, left_forw_vel, right_turn_angle, right_forw_vel, end_of_loop_pause] = getConfig(isSimulator)
+
+thresh = 0.5;
+back_vel = -0.1;
+backwards_pause = 0.05;
+initial_vel = 0.2;
+left_turn_angle = 15;
+left_forw_vel = 0.15;
+right_turn_angle = -10;
+right_forw_vel = 0.15;
+end_of_loop_pause = 0;
+
+if isSimulator 
+    thresh = 0.3;
+    back_vel = 0.0;
+    backwards_pause = 0.0;
+    initial_vel = 0.45;
+    left_turn_angle = 5;
+    left_forw_vel = 0.05;
+    right_turn_angle = -7;
+    right_forw_vel = 0.2;
+    end_of_loop_pause = 0.1;
 end
 
 end

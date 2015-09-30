@@ -54,6 +54,12 @@ if isSimulator
     back_vel = 0.0;
 end
 
+% backwards pause
+backwards_pause = 0.05;
+if isSimulator
+    backwards_pause = 0.0;
+end
+
 % Initial forward velocity
 initial_vel = 0.2;
 if isSimulator
@@ -82,6 +88,11 @@ end
 right_forw_vel = .15;
 if isSimulator
     right_forw_vel = .2;
+end
+
+end_of_loop_pause = 0.0;
+if isSimulator
+    end_of_loop_pause = 0.1;
 end
 
 % Start the timer and set initial distance
@@ -123,7 +134,7 @@ while toc(tStart) < maxDuration
         if bumpRight || bumpLeft || bumpFront
             % We're in contact with an object, rotate left 
             SetFwdVelRadiusRoomba(serPort, back_vel, inf);
-            pause(0.05);
+            pause(backwards_pause);
             turnAngle(serPort, .2, left_turn_angle);
             SetFwdVelRadiusRoomba(serPort, left_forw_vel, inf);
             pause(0.05);
@@ -139,6 +150,8 @@ while toc(tStart) < maxDuration
             SetFwdVelRadiusRoomba(serPort, right_forw_vel, inf);
             pause(0.05);
         end
+        
+        pause(end_of_loop_pause);
         
         % Update the new position based on the new orientation and distance
         % travelled

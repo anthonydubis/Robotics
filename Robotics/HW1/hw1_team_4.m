@@ -1,47 +1,24 @@
-function homework1( serPort )
-%==========================================================================
-% Instructions:
-% Each Segment 1-4 is an autonomous
-% block of code that can be run indivudually
-%==========================================================================
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% COMS W4733 Computational Aspects of Robotics 2015
+%
+% Homework 1
+%
+% Team number: 4
+% Team leader: Anthony Dubis (ajd2194)
+% Team members: Lilly Wang (lfw2114), Samir Mathrani (sm3619)
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%==========================================================================
-% 1. Basic Navigation
-%==========================================================================
-% SetFwdVelRadiusRoomba(serPort, 0.5, inf);     % Move Forward Full Speed
-% SetFwdVelRadiusRoomba(serPort, -0.5, inf);    % Move Backward Full Speed
-% turnAngle(serPort, 0.1, 90)                   % Turn Left
-% turnAngle(serPort, 0.1, -90)                  % Turn Right
-% SetFwdVelRadiusRoomba(serPort, 0, inf);       % Stop
-%==========================================================================
+function hw1_team_4( serPort )
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Update this boolean based on whether running on the simulator or not
 
-%==========================================================================
-% 2. Basic Navigation with Time Constraints
-%==========================================================================    
-% SetFwdVelRadiusRoomba(serPort, 0.5, inf);      % Move Forward
-% pause(1)                                       % Pause for 1 second
-% SetFwdVelRadiusRoomba(serPort, 0, inf);        % Stop
-%==========================================================================
-
-%==========================================================================
-% 3. Read from Sensors
-%==========================================================================
-% [ BumpRight, BumpLeft, WheelDropRight, WheelDropLeft, WheelDropCastor, BumpFront] = BumpsWheelDropsSensorsRoomba(serPort); % Read Bumpers
-% display(BumpLeft)                              % Display Left Bumper Value
-% display(BumpRight)                             % Display Right Bumper Value
-% display(BumpFront)                             % Display Front Bumper Value
-% WallSensor = WallSensorReadRoomba(serPort);    % Read Wall Sensor, Requires WallSensorReadRoomba file    
-% display(WallSensor)                            % Display WallSensor Value
-%==========================================================================
-
-%==========================================================================
-% 4. While Loop with Maximum Time and Distance Sensor
-%==========================================================================
-
-% Update this variable based on whether running on the simulator
 isSimulator = true;
 
-% Configurations based on isSimulator boolean
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% Configurations based on isSimulator boolean - see function for variable descriptions
 [thresh, back_vel, backwards_pause, initial_vel, left_turn_angle, left_forw_vel, right_turn_angle, right_forw_vel, end_of_loop_pause] = getConfig(isSimulator);
 
 % Start the timer and set initial distance
@@ -88,13 +65,12 @@ while toc(tStart) < maxDuration
             SetFwdVelRadiusRoomba(serPort, left_forw_vel, inf);
             pause(0.05);
         elseif wallSensor
-            % The wall is still close - go straight to keep tracing
+            % The wall is close to our right - go straight to keep tracing
             SetFwdVelRadiusRoomba(serPort, 0.4, inf);
-            % TRY - longer pause here, shorter pause elsewhere
             pause(0.05);
         else
-            % We've lost bumper contact and broken the wall sensor, turn
-            % back right to re-engage
+            % We've lost bumper contact and/or broken the wall sensor, turn
+            % back right to re-engage the obstacle
             turnAngle(serPort, .2, right_turn_angle);
             SetFwdVelRadiusRoomba(serPort, right_forw_vel, inf);
             pause(0.05);
@@ -107,7 +83,6 @@ while toc(tStart) < maxDuration
         dist_travelled = DistanceSensorRoomba(serPort);
         curr_angle = curr_angle + AngleSensorRoomba(serPort);
         pos = updatedPosition(pos, dist_travelled, curr_angle);
-        display(pos);
         
         % Break out of the loop if we've returned to the starting point
         if hasReturned(pos, thresh)
@@ -117,6 +92,7 @@ while toc(tStart) < maxDuration
     end
 end
 
+% Stop the robot when finished
 SetFwdVelRadiusRoomba(serPort, 0, inf);
 
 end
@@ -163,6 +139,24 @@ else
 end
 end
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% This function is used to get the configuration parameters for when
+% running on the robot vs on the simulator. The parameters returned are
+% based on the boolean passed in.
+%
+% thresh = distance the robot must be from initial point of contact to stop
+% back_vel = velocity of the robot when moving backwards
+% backwards_pause = duration to pause after sending move backwards command
+% initial_vel = initial velocity for robot when approaching the obstacle
+% left_turn_angle = the degree of left turns
+% left_forw_vel = the forward velocity of the robot after turning left
+% right_turn_angle = the degree of right turns
+% right_forw_vel = the forward velocity of the robot after turning right
+% end_of_loop_pause = the pause value at the end of the loop when tracing
+% an object
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function [thresh, back_vel, backwards_pause, initial_vel, left_turn_angle, left_forw_vel, right_turn_angle, right_forw_vel, end_of_loop_pause] = getConfig(isSimulator)
 
 thresh = 0.5;

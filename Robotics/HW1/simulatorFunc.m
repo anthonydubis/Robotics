@@ -43,7 +43,7 @@ tStart= tic;
 maxDuration = 600;
 
 % Specify how close we have to come back to the starting point to finish
-thresh = .15;
+thresh = .3;
 
 % Set initial values
 pos = [0 0];
@@ -77,7 +77,7 @@ while toc(tStart) < maxDuration
         if bumpRight || bumpLeft || bumpFront
             % We're in contact with an object, rotate left 
             turnAngle(serPort, .2, 5);
-            SetFwdVelRadiusRoomba(serPort, .1, inf);
+            SetFwdVelRadiusRoomba(serPort, .05, inf);
             pause(0.05);
         elseif wallSensor
             % The wall is still close - go straight to keep tracing
@@ -86,7 +86,7 @@ while toc(tStart) < maxDuration
         else
             % We've lost bumper contact and broken the wall sensor, turn
             % back right to re-engage
-            turnAngle(serPort, .2, -5);
+            turnAngle(serPort, .2, -7);
             SetFwdVelRadiusRoomba(serPort, .2, inf);
             pause(0.05);
         end
@@ -99,12 +99,16 @@ while toc(tStart) < maxDuration
         curr_angle = curr_angle + AngleSensorRoomba(serPort);
         pos = updatedPosition(pos, dist_travelled, curr_angle);
         
+        display(pos);
+        
         % Break out of the loop if we've returned to the starting point
         if hasReturned(pos, thresh)
             break;
         end
     end
 end
+
+SetFwdVelRadiusRoomba(serPort, 0, inf);
 
 end
 

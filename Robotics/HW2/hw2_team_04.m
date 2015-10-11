@@ -41,13 +41,18 @@
 
 function hw2_team_04( serPort )
 
-% Start the timer and set initial distance
+% Start the timer
 tStart= tic;
 maxDuration = 600;
 
 % Set initial values
 pos = [0 0];
 angle = 0;
+isNavigatingObstacle = false;
+thresh = 0.1;
+
+global hasLeftInitialPOC;
+hasLeftInitialPOC = false;
 
 % Reset sensors
 BumpsWheelDropsSensorsRoomba(serPort);
@@ -60,7 +65,32 @@ SetFwdVelRadiusRoomba(serPort, .3, inf);
 while toc(tStart) < maxDuration
     % Get sensor values
     [bumpRight, bumpLeft, ~, ~, ~, bumpFront] = BumpsWheelDropsSensorsRoomba(serPort);
+    contact = bumpRight || bumpLeft || bumpFront;
     wallSensor = WallSensorReadRoomba(serPort);
+    
+    % There's nothing in our path and we aren't navigation an obstacle
+    if ~isNavigatingObstacle && ~contact
+        if hasReachedGoal(pos, thresh)
+            % Made it!
+            break;
+        else
+            % Not home yet - go forward
+            headTowardsGoal(serPort, angle);
+        end
+    
+    % We were navigating an object but we rediscovered the M-line
+    elseif hasRediscoveredMLine(pos, thresh)
+        isNavigatingObstacle = false;
+        headTowardsGoal(serPort, angle);
+        
+    % We must be navigating an object
+    else
+        % Continue tracing the object
+        isNavigatingObstacle = true;
+        navigateObstacle(serPort, contact, wallSensor);
+    end
+    
+    pause(0.1);
     
     % Update position based on the new orientation and distance travelled
     dist_travelled = DistanceSensorRoomba(serPort);
@@ -69,7 +99,44 @@ while toc(tStart) < maxDuration
     
     display(pos);
     display(angle);
-    pause(0.1);
+end
+
+end
+
+% Head towards the goal, but correct our angle if we start to veer
+function headTowardsGoal(serPort, angle)
+
+if abs(angle) > 0.05
+    turnAngle(serPort, 0.2, -angle);
+else
+    SetFwdVelRadiusRoomba(serPort, .3, inf);
+end
+
+end
+
+% Returns true if our y is within some threshhold of 0
+function discovered = hasRediscoveredMLine(pos, thresh)
+
+discovered = false;
+
+global hasLeftInitialPOC;
+
+if ~hasLeftInitialPOC
+    if abs(pos(2)) > thresh
+        hasLeftInitialPOC = true;
+    end
+elseif abs(pos(2)) < thresh
+    discovered = true;
+end
+
+end
+
+% Returns true if we are within some threshhold of our goal
+function reached = hasReachedGoal(pos, thresh)
+
+reached = false;
+if abs(4 - pos(1)) < thresh && abs(pos(2)) < thresh
+    reached = true;
 end
 
 end
@@ -80,5 +147,27 @@ function pos = updatedPosition(last_pos, dist_travelled, angle)
 pos = [0 0];
 pos(1) = last_pos(1) + dist_travelled * cos(angle);
 pos(2) = last_pos(2) + dist_travelled * sin(angle);
+
+end
+
+% Tracing the object
+function navigateObstacle(serPort, contact, wallSensor)
+
+if contact
+    % We're in contact with an object, rotate left 
+    turnAngle(serPort, .2, 5);
+    SetFwdVelRadiusRoomba(serPort, 0.05, inf);
+    pause(0.05);
+elseif wallSensor
+    % The wall is close to our right - go straight to keep tracing
+    SetFwdVelRadiusRoomba(serPort, 0.4, inf);
+    pause(0.05);
+else
+    % We've lost bumper contact and/or broken the wall sensor, turn
+    % back right to re-engage the obstacle
+    turnAngle(serPort, .2, -7);
+    SetFwdVelRadiusRoomba(serPort, 0.2, inf);
+    pause(0.05);
+end
 
 end

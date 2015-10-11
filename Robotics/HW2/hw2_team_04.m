@@ -125,6 +125,8 @@ while toc(tStart) < maxDuration
     display(angle);
 end
 
+SetFwdVelRadiusRoomba(serPort, 0, inf);
+
 end
 
 function similar = pointsAreSimilar(p1, p2, thresh)

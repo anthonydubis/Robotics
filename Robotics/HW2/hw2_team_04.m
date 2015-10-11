@@ -45,12 +45,21 @@ function hw2_team_04( serPort )
 tStart= tic;
 maxDuration = 600;
 
-% Set initial values
+% The current position and angle
 pos = [0 0];
 angle = 0;
+
+% Cache the location we hit an obstacle, [-1 -1] implies we aren't
+% navigating an obstacle right now.
+poc = [-1 -1];
+
+% True when navigating an object
 isNavigatingObstacle = false;
+
+% A threshold distance to be within when determining proximity to a point
 thresh = 0.1;
 
+% True if we should head towards the goal when the m-line is encountered again
 global hasLeftInitialPOC;
 hasLeftInitialPOC = false;
 
@@ -125,7 +134,7 @@ if ~hasLeftInitialPOC
     if abs(pos(2)) > thresh
         hasLeftInitialPOC = true;
     end
-elseif abs(pos(2)) < thresh
+elseif pos(1) > -thresh && abs(pos(2)) < thresh
     discovered = true;
 end
 

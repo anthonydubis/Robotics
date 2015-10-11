@@ -49,9 +49,9 @@ maxDuration = 600;
 pos = [0 0];
 angle = 0;
 
-% Cache the location we hit an obstacle, [-1 -1] implies we aren't
+% Cache the location we hit an obstacle, [NaN NaN] implies we aren't
 % navigating an obstacle right now.
-poc = [-1 -1];
+poc = [NaN NaN];
 
 % True when navigating an object
 isNavigatingObstacle = false;
@@ -77,6 +77,14 @@ while toc(tStart) < maxDuration
     contact = bumpRight || bumpLeft || bumpFront;
     wallSensor = WallSensorReadRoomba(serPort);
     
+    % Break out out if returned back to point of contact
+    if hasLeftInitialPOC
+        if pointsAreSimilar(pos, poc, thresh)
+            % We've returned to our point of contact - we're bounded
+            break;
+        end
+    end
+    
     % There's nothing in our path and we aren't navigation an obstacle
     if ~isNavigatingObstacle && ~contact
         if hasReachedGoal(pos, thresh)
@@ -88,12 +96,18 @@ while toc(tStart) < maxDuration
         end
     
     % We were navigating an object but we rediscovered the M-line
-    elseif hasRediscoveredMLine(pos, thresh)
+    elseif hasRediscoveredMLine(pos, poc, thresh)
+        poc = [NaN NaN];
         isNavigatingObstacle = false;
         headTowardsGoal(serPort, angle);
         
     % We must be navigating an object
     else
+        if isnan(poc(1))
+            poc = pos;
+            hasLeftInitialPOC = false;
+        end
+        
         % Continue tracing the object
         isNavigatingObstacle = true;
         navigateObstacle(serPort, contact, wallSensor);
@@ -107,7 +121,18 @@ while toc(tStart) < maxDuration
     pos = updatedPosition(pos, dist_travelled, angle);
     
     display(pos);
+    display(poc);
     display(angle);
+end
+
+end
+
+function similar = pointsAreSimilar(p1, p2, thresh)
+
+similar = false;
+
+if abs(p1(1) - p2(1)) < thresh && abs(p1(2) - p2(2)) < thresh
+    similar = true;
 end
 
 end
@@ -124,7 +149,7 @@ end
 end
 
 % Returns true if our y is within some threshhold of 0
-function discovered = hasRediscoveredMLine(pos, thresh)
+function discovered = hasRediscoveredMLine(pos, poc, thresh)
 
 discovered = false;
 
@@ -134,7 +159,7 @@ if ~hasLeftInitialPOC
     if abs(pos(2)) > thresh
         hasLeftInitialPOC = true;
     end
-elseif pos(1) > -thresh && abs(pos(2)) < thresh
+elseif pos(1) > poc(1) && abs(pos(2)) < thresh
     discovered = true;
 end
 

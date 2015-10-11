@@ -159,7 +159,7 @@ if ~hasLeftInitialPOC
     if abs(pos(2)) > thresh
         hasLeftInitialPOC = true;
     end
-elseif pos(1) > poc(1) && abs(pos(2)) < thresh
+elseif pos(1) > poc(1) && abs(pos(2)) < thresh && pos(1) < 4 + thresh
     discovered = true;
 end
 

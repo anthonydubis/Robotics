@@ -57,7 +57,7 @@ poc = [NaN NaN];
 isNavigatingObstacle = false;
 
 % A threshold distance to be within when determining proximity to a point
-thresh = 0.05;
+thresh = 0.1;
 
 % True if we should head towards the goal when the m-line is encountered again
 global hasLeftInitialPOC;
@@ -191,9 +191,10 @@ function navigateObstacle(serPort, contact, wallSensor)
 
 if contact
     % We're in contact with an object, rotate left 
-    
+    SetFwdVelRadiusRoomba(serPort, -0.05, inf);
+    pause(0.1);
     turnAngle(serPort, .2, 5);
-    SetFwdVelRadiusRoomba(serPort, 0.05, inf);
+    SetFwdVelRadiusRoomba(serPort, 0.1, inf);
     pause(0.05);
 elseif wallSensor
     % The wall is close to our right - go straight to keep tracing

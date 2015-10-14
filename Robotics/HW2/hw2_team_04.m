@@ -141,7 +141,7 @@ plot_position(pos_hist);
 
 end
 
-% A function that plots the robots position in space at each iteration
+% A function that plots (x, y) coordinates the robot reached
 %
 % pos_hist - N x 3 matrix, each entry is an (n, x, y) where n is the
 % iteration number, x is the x position, and y is the y position.
@@ -150,7 +150,7 @@ function plot_position(pos_hist)
 figure; hold on;
 
 axis([-5 5 -5 5]);
-title('Coordinates outline'); 
+title('(X, Y) Coordinates Reached'); 
 legend('(x,y) coordinate');
 xlabel('Meters');
 ylabel('Meters');

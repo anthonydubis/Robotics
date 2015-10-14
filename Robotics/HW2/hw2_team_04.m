@@ -176,7 +176,7 @@ function plot_progress(pos_hist, ang_hist)
 
 figure; hold on;
 
-axis([0 size(pos_hist,1) -5 5]);
+axis([0 size(pos_hist,1) -6 6]);
 title('Progress Towards Goal (0-4) and Orientation (Angle in Radians)'); 
 legend('Distance Traveled to Goal (meters)','Orientation (radians)');
 xlabel('Iteration Number');

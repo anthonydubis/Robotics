@@ -81,6 +81,7 @@ while toc(tStart) < maxDuration
     if hasLeftInitialPOC
         if pointsAreSimilar(pos, poc, thresh)
             % We've returned to our point of contact - we're bounded
+            fprintf('Bounded by an obstacle - terminating\n');
             break;
         end
     end
@@ -158,8 +159,11 @@ discovered = false;
 global hasLeftInitialPOC;
 
 if ~hasLeftInitialPOC
-    if abs(pos(2)) > thresh
-        hasLeftInitialPOC = true;
+    if ~isnan(poc(1))
+        if abs(pos(1) - poc(1)) > thresh || abs(pos(2) - poc(2)) > thresh
+            % We have left our initial point of contact
+            hasLeftInitialPOC = true;
+        end
     end
 elseif pos(1) > poc(1) && abs(pos(2)) < thresh && pos(1) < 4 + thresh
     discovered = true;

@@ -77,6 +77,10 @@ while toc(tStart) < maxDuration
     contact = bumpRight || bumpLeft || bumpFront;
     wallSensor = WallSensorReadRoomba(serPort);
     
+    if hasReachedGoal(pos, 2*thresh)
+        % Made it!
+        break;
+    end
     % Break out out if returned back to point of contact
     if hasLeftInitialPOC
         if pointsAreSimilar(pos, poc, thresh)
@@ -88,13 +92,8 @@ while toc(tStart) < maxDuration
     
     % There's nothing in our path and we aren't navigation an obstacle
     if ~isNavigatingObstacle && ~contact
-        if hasReachedGoal(pos, 2*thresh)
-            % Made it!
-            break;
-        else
-            % Not home yet - go forward
-            headTowardsGoal(serPort, angle);
-        end
+        % Not home yet - go forward
+        headTowardsGoal(serPort, angle);
     
     % We were navigating an object but we rediscovered the M-line
     elseif hasRediscoveredMLine(pos, poc, thresh)
@@ -144,7 +143,7 @@ end
 function headTowardsGoal(serPort, angle)
 
 if abs(angle) > 0.05
-    turnAngle(serPort, 0.2, -(angle * 180 / pi));
+    turnAngle(serPort, 0.2, -(angle * 180 / pi / 4));
 else
     SetFwdVelRadiusRoomba(serPort, .3, inf);
 end
@@ -160,7 +159,7 @@ global hasLeftInitialPOC;
 
 if ~hasLeftInitialPOC
     if ~isnan(poc(1))
-        if abs(pos(1) - poc(1)) > thresh || abs(pos(2) - poc(2)) > thresh
+        if abs(pos(1) - poc(1)) > thresh*2 || abs(pos(2) - poc(2)) > thresh*2
             % We have left our initial point of contact
             hasLeftInitialPOC = true;
         end
@@ -175,7 +174,7 @@ end
 function reached = hasReachedGoal(pos, thresh)
 
 reached = false;
-if abs(4 - pos(1)) < thresh && abs(pos(2)) < thresh
+if pos(1) > 4
     reached = true;
 end
 

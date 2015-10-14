@@ -49,6 +49,11 @@ maxDuration = 600;
 pos = [0 0];
 angle = 0;
 
+% Cache information for graphing
+pos_hist = [];
+ang_hist = [];
+idx = 1;
+
 % Cache the location we hit an obstacle, [NaN NaN] implies we aren't
 % navigating an obstacle right now.
 poc = [NaN NaN];
@@ -123,9 +128,69 @@ while toc(tStart) < maxDuration
     display(pos);
     display(poc);
     display(angle);
+    
+    pos_hist = [pos_hist; idx pos];
+    ang_hist = [ang_hist; idx angle];
+    idx = idx + 1;
 end
 
 SetFwdVelRadiusRoomba(serPort, 0, inf);
+
+plot_progress(pos_hist, ang_hist);
+plot_position(pos_hist);
+
+end
+
+% A function that plots the robots position in space at each iteration
+%
+% pos_hist - N x 3 matrix, each entry is an (n, x, y) where n is the
+% iteration number, x is the x position, and y is the y position.
+function plot_position(pos_hist)
+
+figure; hold on;
+
+axis([-5 5 -5 5]);
+title('Coordinates outline'); 
+legend('(x,y) coordinate');
+xlabel('Meters');
+ylabel('Meters');
+
+for i=1:size(pos_hist,1)
+    pt = plot(pos_hist(:,2), pos_hist(:,3), 'o', 'MarkerEdgeColor', 'r');
+    set(pt, 'MarkerSize', 2, 'LineWidth', 2);
+end
+
+hold off;
+
+end
+
+% A function that plots the robots progress by changes in distance and
+% orientation
+%
+% pos_hist - N x 3 matrix, each entry is an (n, x, y) where n is the
+% iteration number, x is the x position, and y is the y position.
+%
+% ang_hist - N x 1 vector, each entry is the orientation (angle in radians) 
+% of the robot relative to its goal (0 radians means facing the goal)
+function plot_progress(pos_hist, ang_hist)
+
+figure; hold on;
+
+axis([0 size(pos_hist,1) -5 5]);
+title('Progress Towards Goal (0-4) and Orientation (Angle in Radians)'); 
+legend('Distance Traveled to Goal (meters)','Orientation (radians)');
+xlabel('Iteration Number');
+ylabel('Meters for Progress, Radians for Orientation');
+
+for i=1:size(pos_hist,1)
+    pt = plot(pos_hist(:,1), pos_hist(:,2), 'o', 'MarkerEdgeColor', 'r');
+    set(pt, 'MarkerSize', 2, 'LineWidth', 2);
+    
+    ang = plot(ang_hist(:,1), ang_hist(:,2), 'x', 'MarkerEdgeColor', 'b');
+    set(ang, 'MarkerSize', 2, 'LineWidth', 2);
+end
+
+hold off;
 
 end
 

@@ -125,9 +125,9 @@ while toc(tStart) < maxDuration
     angle = angle + AngleSensorRoomba(serPort);
     pos = updatedPosition(pos, dist_travelled, angle);
     
-%     display(pos);
-%     display(poc);
-%     display(angle);
+    display(pos);
+    display(poc);
+    display(angle);
     
     len = length(pos_hist);
     if idx > len
@@ -163,7 +163,6 @@ figure; hold on;
 
 axis([-5 5 -5 5]);
 title('(X, Y) Coordinates Reached'); 
-legend('(x,y) coordinate');
 xlabel('Meters');
 ylabel('Meters');
 
@@ -171,6 +170,7 @@ for i=1:size(pos_hist,1)
     pt = plot(pos_hist(:,2), pos_hist(:,3), 'o', 'MarkerEdgeColor', 'r');
     set(pt, 'MarkerSize', 2, 'LineWidth', 2);
 end
+legend('(x,y) coordinate');
 
 hold off;
 
@@ -190,7 +190,6 @@ figure; hold on;
 
 axis([0 size(pos_hist,1) -6 6]);
 title('Progress Towards Goal (0-4) and Orientation (Angle in Radians)'); 
-legend('Distance Traveled to Goal (meters)','Orientation (radians)');
 xlabel('Iteration Number');
 ylabel('Meters for Progress, Radians for Orientation');
 
@@ -201,6 +200,8 @@ for i=1:size(pos_hist,1)
     ang = plot(ang_hist(:,1), ang_hist(:,2), 'x', 'MarkerEdgeColor', 'b');
     set(ang, 'MarkerSize', 2, 'LineWidth', 2);
 end
+
+legend('Distance Traveled to Goal (meters)','Orientation (radians)');
 
 hold off;
 

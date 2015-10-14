@@ -50,8 +50,8 @@ pos = [0 0];
 angle = 0;
 
 % Cache information for graphing
-pos_hist = [];
-ang_hist = [];
+pos_hist = zeros(200, 3);
+ang_hist = zeros(200, 2);
 idx = 1;
 
 % Cache the location we hit an obstacle, [NaN NaN] implies we aren't
@@ -125,16 +125,28 @@ while toc(tStart) < maxDuration
     angle = angle + AngleSensorRoomba(serPort);
     pos = updatedPosition(pos, dist_travelled, angle);
     
-    display(pos);
-    display(poc);
-    display(angle);
+%     display(pos);
+%     display(poc);
+%     display(angle);
     
-    pos_hist = [pos_hist; idx pos];
-    ang_hist = [ang_hist; idx angle];
+    len = length(pos_hist);
+    if idx > len
+        fprintf('Growing cache size');
+        pos_hist = [pos_hist; zeros(len, 3)];
+        ang_hist = [ang_hist; zeros(len, 2)];
+    end
+    pos_hist(idx,:) = [idx pos(1) pos(2)];
+    ang_hist(idx,:) = [idx angle];
     idx = idx + 1;
 end
 
 SetFwdVelRadiusRoomba(serPort, 0, inf);
+
+% Chop off extra space in pos_hist and ang_hist
+if (idx > 1)
+    pos_hist = pos_hist(1:idx-1,:);
+    ang_hist = ang_hist(1:idx-1,:);
+end
 
 plot_progress(pos_hist, ang_hist);
 plot_position(pos_hist);

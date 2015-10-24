@@ -42,7 +42,7 @@ function hw3_team_04( serPort )
 
 % Start the timer
 tStart= tic;
-maxDuration = 20;
+maxDuration = 120;
 
 % The current position and angle
 pos = [0 0];
@@ -57,7 +57,7 @@ DistanceSensorRoomba(serPort);
 AngleSensorRoomba(serPort);
 
 % Assume starting size grid, 0 = unvisited, 1 = open, -1 = closed
-map = zeros(20);
+map = zeros(50);
 
 while toc(tStart) < maxDuration
     % Get sensor values
@@ -69,7 +69,13 @@ while toc(tStart) < maxDuration
     map = updateMap(map, contact, pos, diameter);
     
     if contact
-        x = randi([-180, 180]);
+        minAngle = 0;
+        maxAngle = 180;
+        if bumpLeft
+            minAngle = maxAngle * -1;
+            maxAngle = 0;
+        end
+        x = randi([minAngle, maxAngle]);
         turnAngle(serPort, 0.2, x);
     end
     
@@ -107,9 +113,8 @@ end
 function map = updateMap(map, contact, pos, diameter)
 
 pos_floor = floor(pos/diameter);
-%index(1) = pos_floor(1) + length(map)/2 + 1; 
-%index(2) = -1*pos_floor(2) + length(map)/2 + 1; % since lower y value means higher row number
-index = pos_floor + length(map)/2 + 1; 
+index = pos_floor + length(map)/2 + 1;
+
 % update if cell is open or unvisted
 if (map(index(2), index(1)) > -1)
     if contact

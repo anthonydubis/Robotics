@@ -91,7 +91,6 @@ while toc(tStart) < maxDuration && toc(t_last_disc) < last_disc_thresh
 %     display(map);    
 end
 
-fillObjects(map);
 HeatMap(-map); %so red means obstacle
 SetFwdVelRadiusRoomba(serPort, 0, inf);
 
@@ -179,33 +178,5 @@ function new_map = doubleMap(map)
 s = length(map);
 new_map = zeros(2*s);
 new_map(s/2+1:3*s/2, s/2+1:3*s/2) = map;
-
-end
-
-
-% Sets grid spaces as closed if they are surrounded by closed spaces
-function map = fillObjects(map)
-
-sz = size(map);
-
-% Only consider matrix positions that have entries all around them
-for i=2:sz(1)-1
-    for j=2:sz(2)-1
-        map = fillPosition(map, i, j);
-    end
-end
-
-end
-
-
-function map = fillPosition(map, i, j)
-
-if map(i,j) == -1 || map(i,j) == 1;
-    return;
-end
-
-if map(i-1,j) == -1 && map(i+1,j) == -1 && map(i,j+1) == -1 && map(i,j-1) == -1
-    map(i,j) = -1;
-end
 
 end

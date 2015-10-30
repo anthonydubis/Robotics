@@ -100,7 +100,7 @@ while toc(tStart) < maxDuration && toc(t_last_disc) < last_disc_thresh
         SetFwdVelRadiusRoomba(serPort, 0.3, inf);
         
         % Begin spiralling after moving away from last POC
-        if distanceFromPoint(lastPOC, pos) > diameter * 8
+        if distanceFromPoint(lastPOC, pos) > diameter * 8 && toc(t_last_disc) < 1.5
             isSpiralling = true;
             turnRadius = initialSpiralTurnRadius;
         end
@@ -171,6 +171,7 @@ end
 
 
 % Updates map
+% wasUpdated = true if a value in map changes, false otherwise
 function [map, wasUpdated] = updateMap(map, bLeft, bRight, bFront, pos, diameter, angle)
 
 wasUpdated = false;

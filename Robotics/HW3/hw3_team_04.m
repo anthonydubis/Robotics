@@ -40,18 +40,25 @@
 
 function hw3_team_04( serPort )
 
+% Constants
+diameter = .335;
+initialSpiralTurnRadius = 0.1;
+spiralRadiusIncrement = 0.003;
+
 % Start the timer
 tStart= tic;
-maxDuration = 120;
+maxDuration = 240;
 t_last_disc = tic;
 last_disc_thresh = 30;
 
 % The current position and angle
 pos = [0 0];
 angle = 0;
+lastPOC = [0 0];
 
-% Constants
-diameter = .335;
+% Variable specifying whether we are spiraling or not
+isSpiralling = true;
+turnRadius = initialSpiralTurnRadius;
 
 % Reset sensors
 BumpsWheelDropsSensorsRoomba(serPort);
@@ -65,7 +72,6 @@ while toc(tStart) < maxDuration && toc(t_last_disc) < last_disc_thresh
     % Get sensor values
     [bRight, bLeft, ~, ~, ~, bFront] = BumpsWheelDropsSensorsRoomba(serPort);
     contact = bRight || bLeft || bFront;
-    %wallSensor = WallSensorReadRoomba(serPort);
 
     % Add coordinate to map matrix
     [map, wasUpdated] = updateMap(map, bLeft, bRight, bFront, pos, diameter, angle);
@@ -73,11 +79,32 @@ while toc(tStart) < maxDuration && toc(t_last_disc) < last_disc_thresh
         t_last_disc = tic;
     end
     
+    % Stop spiralling, turn randomly, and go straight
     if contact
+        SetFwdVelRadiusRoomba(serPort, 0, inf);
+        isSpiralling = false;
+        lastPOC = pos;
         randomTurn(serPort, bLeft);
     end
     
-    SetFwdVelRadiusRoomba(serPort, 0.3, inf);
+    if isSpiralling
+        SetFwdVelRadiusRoomba(serPort, 0.2, turnRadius);
+        turnRadius = turnRadius + spiralRadiusIncrement;
+        
+        % Stop spiralling if our turn radius has grown too large
+        if turnRadius > 1.9
+            isSpiralling = false;
+            lastPOC = pos;
+        end
+    else
+        SetFwdVelRadiusRoomba(serPort, 0.3, inf);
+        
+        % Begin spiralling after moving away from last POC
+        if distanceFromPoint(lastPOC, pos) > diameter * 8
+            isSpiralling = true;
+            turnRadius = initialSpiralTurnRadius;
+        end
+    end
     
     pause(.1);
     
@@ -88,13 +115,20 @@ while toc(tStart) < maxDuration && toc(t_last_disc) < last_disc_thresh
     
 %     display(pos);
 %     display(angle);
-%     display(map);    
+    display(map);    
 end
 
 HeatMap(-map); %so red means obstacle
 SetFwdVelRadiusRoomba(serPort, 0, inf);
 
 end
+
+function dist = distanceFromPoint(p1, p2)
+
+dist = norm(p1 - p2);
+
+end
+
 
 % Make a random turn
 % @bLeft = true if the left bumper is in contact

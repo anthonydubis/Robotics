@@ -57,7 +57,7 @@ DistanceSensorRoomba(serPort);
 AngleSensorRoomba(serPort);
 
 % Assume starting size grid, 0 = unvisited, 1 = open, -1 = closed
-map = zeros(10);
+map = zeros(14);
 
 while toc(tStart) < maxDuration
     % Get sensor values
@@ -66,7 +66,7 @@ while toc(tStart) < maxDuration
     %wallSensor = WallSensorReadRoomba(serPort);
 
     % Add coordinate to map matrix
-    map = updateMap(map, contact, pos, diameter);
+    map = updateMap(map, contact, pos, diameter, angle);
     
     if contact
         minAngle = 0;
@@ -100,6 +100,7 @@ SetFwdVelRadiusRoomba(serPort, 0, inf);
 
 end
 
+
 % Returns the new position of the robot 
 function pos = updatedPosition(last_pos, dist_travelled, angle)
 
@@ -110,8 +111,21 @@ pos(2) = last_pos(2) + dist_travelled * sin(angle);
 end
 
 
+% Assumes we are currently in contact with an obstacle
+% Returns the estimated position of that obstacle
+function poc = contactPosition(pos, diameter, angle)
+
+poc = updatedPosition(pos, diameter, angle);
+
+end
+
+
 % Updates map
-function map = updateMap(map, contact, pos, diameter)
+function map = updateMap(map, contact, pos, diameter, angle)
+
+if contact
+    pos = contactPosition(pos, diameter, angle);
+end
 
 pos_floor = floor(pos/diameter);
 % Doing length(map)/2 assumes length(map) is an even number
@@ -128,6 +142,7 @@ end
 
 end
 
+
 % Sets grid spaces as closed if they are surrounded by closed spaces
 function map = fillObjects(map)
 
@@ -141,6 +156,7 @@ for i=2:sz(1)-1
 end
 
 end
+
 
 function map = fillPosition(map, i, j)
 

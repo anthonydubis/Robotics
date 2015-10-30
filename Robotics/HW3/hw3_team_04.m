@@ -61,17 +61,17 @@ map = zeros(14);
 
 while toc(tStart) < maxDuration
     % Get sensor values
-    [bumpRight, bumpLeft, ~, ~, ~, bumpFront] = BumpsWheelDropsSensorsRoomba(serPort);
-    contact = bumpRight || bumpLeft || bumpFront;
+    [bRight, bLeft, ~, ~, ~, bFront] = BumpsWheelDropsSensorsRoomba(serPort);
+    contact = bRight || bLeft || bFront;
     %wallSensor = WallSensorReadRoomba(serPort);
 
     % Add coordinate to map matrix
-    map = updateMap(map, contact, pos, diameter, angle);
+    map = updateMap(map, bLeft, bRight, bFront, pos, diameter, angle);
     
     if contact
         minAngle = 0;
         maxAngle = 180;
-        if bumpLeft
+        if bLeft
             minAngle = maxAngle * -1;
             maxAngle = 0;
         end
@@ -113,7 +113,15 @@ end
 
 % Assumes we are currently in contact with an obstacle
 % Returns the estimated position of that obstacle
-function poc = contactPosition(pos, diameter, angle)
+function poc = contactPosition(bLeft, bRight, bFront, pos, diameter, angle)
+
+if bFront
+    % Don't adjust the angle
+elseif bLeft
+    angle = angle + pi / 4;
+elseif bRight
+    angle = angle - pi / 4;
+end
 
 poc = updatedPosition(pos, diameter, angle);
 
@@ -121,10 +129,12 @@ end
 
 
 % Updates map
-function map = updateMap(map, contact, pos, diameter, angle)
+function map = updateMap(map, bLeft, bRight, bFront, pos, diameter, angle)
+
+contact = bLeft || bRight || bFront;
 
 if contact
-    pos = contactPosition(pos, diameter, angle);
+    pos = contactPosition(bLeft, bRight, bFront, pos, diameter/2, angle);
 end
 
 pos_floor = floor(pos/diameter);

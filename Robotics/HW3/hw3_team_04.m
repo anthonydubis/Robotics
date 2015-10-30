@@ -69,14 +69,7 @@ while toc(tStart) < maxDuration
     map = updateMap(map, bLeft, bRight, bFront, pos, diameter, angle);
     
     if contact
-        minAngle = 0;
-        maxAngle = 180;
-        if bLeft
-            minAngle = maxAngle * -1;
-            maxAngle = 0;
-        end
-        x = randi([minAngle, maxAngle]);
-        turnAngle(serPort, 0.2, x);
+        randomTurn(serPort, bLeft);
     end
     
     SetFwdVelRadiusRoomba(serPort, 0.3, inf);
@@ -97,6 +90,18 @@ end
 fillObjects(map);
 HeatMap(-map); %so red means obstacle
 SetFwdVelRadiusRoomba(serPort, 0, inf);
+
+end
+
+% Make a random turn
+% @bLeft = true if the left bumper is in contact
+function randomTurn(serPort, bLeft)
+
+x = randi([30 225]);
+if bLeft
+    x = x * -1;
+end
+turnAngle(serPort, 0.2, x);     
 
 end
 
@@ -134,7 +139,7 @@ function map = updateMap(map, bLeft, bRight, bFront, pos, diameter, angle)
 contact = bLeft || bRight || bFront;
 
 if contact
-    pos = contactPosition(bLeft, bRight, bFront, pos, diameter/2, angle);
+    pos = contactPosition(bLeft, bRight, bFront, pos, diameter, angle);
 end
 
 pos_floor = floor(pos/diameter);

@@ -59,7 +59,7 @@ DistanceSensorRoomba(serPort);
 AngleSensorRoomba(serPort);
 
 % Assume starting size grid, 0 = unvisited, 1 = open, -1 = closed
-map = zeros(50);
+map = zeros(2);
 
 while toc(tStart) < maxDuration && toc(t_last_disc) < last_disc_thresh
     % Get sensor values
@@ -148,22 +148,37 @@ if contact
 end
 
 pos_floor = floor(pos/diameter);
-% Doing length(map)/2 assumes length(map) is an even number
-index = pos_floor + length(map)/2 + 1;
+idx = pos_floor + length(map)/2 + 1;
+
+if idx(1) < 1 || idx(2) < 1 || idx(1) > length(map) || idx(2) > length(map)
+    map = doubleMap(map);
+    idx = pos_floor + length(map)/2 + 1;
+end
 
 % update if cell is open or unvisted
-prev = map(index(2), index(1));
+prev = map(idx(2), idx(1));
 if (prev > -1)
     if contact
-        map(index(2), index(1)) = -1;
+        map(idx(2), idx(1)) = -1;
     else
-        map(index(2), index(1)) = 1;
+        map(idx(2), idx(1)) = 1;
     end
 end
 
-if prev ~= map(index(2), index(1))
+if prev ~= map(idx(2), idx(1))
     wasUpdated = true;
 end
+
+end
+
+
+% Double the size of the sides of our map, putting the original map in
+% center
+function new_map = doubleMap(map)
+
+s = length(map);
+new_map = zeros(2*s);
+new_map(s/2+1:3*s/2, s/2+1:3*s/2) = map;
 
 end
 

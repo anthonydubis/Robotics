@@ -57,14 +57,14 @@ DistanceSensorRoomba(serPort);
 AngleSensorRoomba(serPort);
 
 % Assume starting size grid, 0 = unvisited, 1 = open, -1 = closed
-map = zeros(50);
+map = zeros(10);
 
 while toc(tStart) < maxDuration
     % Get sensor values
     [bumpRight, bumpLeft, ~, ~, ~, bumpFront] = BumpsWheelDropsSensorsRoomba(serPort);
     contact = bumpRight || bumpLeft || bumpFront;
     %wallSensor = WallSensorReadRoomba(serPort);
-    
+
     % Add coordinate to map matrix
     map = updateMap(map, contact, pos, diameter);
     
@@ -79,7 +79,7 @@ while toc(tStart) < maxDuration
         turnAngle(serPort, 0.2, x);
     end
     
-    SetFwdVelRadiusRoomba(serPort, 0.3, inf)
+    SetFwdVelRadiusRoomba(serPort, 0.3, inf);
     
     pause(.1);
     
@@ -94,6 +94,7 @@ while toc(tStart) < maxDuration
     
 end
 
+fillObjects(map);
 HeatMap(-map); %so red means obstacle
 SetFwdVelRadiusRoomba(serPort, 0, inf);
 
@@ -113,6 +114,7 @@ end
 function map = updateMap(map, contact, pos, diameter)
 
 pos_floor = floor(pos/diameter);
+% Doing length(map)/2 assumes length(map) is an even number
 index = pos_floor + length(map)/2 + 1;
 
 % update if cell is open or unvisted
@@ -126,3 +128,28 @@ end
 
 end
 
+% Sets grid spaces as closed if they are surrounded by closed spaces
+function map = fillObjects(map)
+
+sz = size(map);
+
+% Only consider matrix positions that have entries all around them
+for i=2:sz(1)-1
+    for j=2:sz(2)-1
+        map = fillPosition(map, i, j);
+    end
+end
+
+end
+
+function map = fillPosition(map, i, j)
+
+if map(i,j) == -1 || map(i,j) == 1;
+    return;
+end
+
+if map(i-1,j) == -1 && map(i+1,j) == -1 && map(i,j+1) == -1 && map(i,j-1) == -1
+    map(i,j) = -1;
+end
+
+end

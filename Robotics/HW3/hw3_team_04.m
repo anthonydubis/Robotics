@@ -43,6 +43,8 @@ function hw3_team_04( serPort )
 % Start the timer
 tStart= tic;
 maxDuration = 120;
+t_last_disc = tic;
+last_disc_thresh = 30;
 
 % The current position and angle
 pos = [0 0];
@@ -57,16 +59,19 @@ DistanceSensorRoomba(serPort);
 AngleSensorRoomba(serPort);
 
 % Assume starting size grid, 0 = unvisited, 1 = open, -1 = closed
-map = zeros(14);
+map = zeros(50);
 
-while toc(tStart) < maxDuration
+while toc(tStart) < maxDuration && toc(t_last_disc) < last_disc_thresh
     % Get sensor values
     [bRight, bLeft, ~, ~, ~, bFront] = BumpsWheelDropsSensorsRoomba(serPort);
     contact = bRight || bLeft || bFront;
     %wallSensor = WallSensorReadRoomba(serPort);
 
     % Add coordinate to map matrix
-    map = updateMap(map, bLeft, bRight, bFront, pos, diameter, angle);
+    [map, wasUpdated] = updateMap(map, bLeft, bRight, bFront, pos, diameter, angle);
+    if wasUpdated
+        t_last_disc = tic;
+    end
     
     if contact
         randomTurn(serPort, bLeft);
@@ -81,10 +86,9 @@ while toc(tStart) < maxDuration
     angle = angle + AngleSensorRoomba(serPort);
     pos = updatedPosition(pos, dist_travelled, angle);
     
-    display(pos);
-    display(angle);
-    display(map);
-    
+%     display(pos);
+%     display(angle);
+%     display(map);    
 end
 
 fillObjects(map);
@@ -134,8 +138,9 @@ end
 
 
 % Updates map
-function map = updateMap(map, bLeft, bRight, bFront, pos, diameter, angle)
+function [map, wasUpdated] = updateMap(map, bLeft, bRight, bFront, pos, diameter, angle)
 
+wasUpdated = false;
 contact = bLeft || bRight || bFront;
 
 if contact
@@ -147,12 +152,17 @@ pos_floor = floor(pos/diameter);
 index = pos_floor + length(map)/2 + 1;
 
 % update if cell is open or unvisted
-if (map(index(2), index(1)) > -1)
+prev = map(index(2), index(1));
+if (prev > -1)
     if contact
         map(index(2), index(1)) = -1;
     else
         map(index(2), index(1)) = 1;
     end
+end
+
+if prev ~= map(index(2), index(1))
+    wasUpdated = true;
 end
 
 end

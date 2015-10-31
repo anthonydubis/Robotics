@@ -47,16 +47,16 @@ spiralRadiusIncrement = 0.003;
 
 % Start the timer
 tStart= tic;
-maxDuration = 240;
 t_last_disc = tic;
-last_disc_thresh = 30;
+maxDuration = 300;
+last_disc_thresh = 60;
 
-% The current position and angle
+% The current position, angle, and last point of contact
 pos = [0 0];
 angle = 0;
 lastPOC = [0 0];
 
-% Variable specifying whether we are spiraling or not
+% Variables for spiralling functionality
 isSpiralling = true;
 turnRadius = initialSpiralTurnRadius;
 
@@ -69,25 +69,24 @@ AngleSensorRoomba(serPort);
 map = zeros(2);
 
 while toc(tStart) < maxDuration && toc(t_last_disc) < last_disc_thresh
-    % Get sensor values
     [bRight, bLeft, ~, ~, ~, bFront] = BumpsWheelDropsSensorsRoomba(serPort);
     contact = bRight || bLeft || bFront;
 
-    % Add coordinate to map matrix
+    % Add value to map matrix if necessary
     [map, wasUpdated] = updateMap(map, bLeft, bRight, bFront, pos, diameter, angle);
     if wasUpdated
         t_last_disc = tic;
     end
     
-    % Stop spiralling, turn randomly, and go straight
-    if contact
+    if contact 
+        % Hit an obstacle
         SetFwdVelRadiusRoomba(serPort, 0, inf);
         isSpiralling = false;
         lastPOC = pos;
         randomTurn(serPort, bLeft);
-    end
-    
-    if isSpiralling
+
+    elseif isSpiralling 
+        % Should continue spirallying
         SetFwdVelRadiusRoomba(serPort, 0.2, turnRadius);
         turnRadius = turnRadius + spiralRadiusIncrement;
         
@@ -96,7 +95,9 @@ while toc(tStart) < maxDuration && toc(t_last_disc) < last_disc_thresh
             isSpiralling = false;
             lastPOC = pos;
         end
+        
     else
+        % Go straight
         SetFwdVelRadiusRoomba(serPort, 0.3, inf);
         
         % Begin spiralling after moving away from last POC
@@ -123,10 +124,11 @@ SetFwdVelRadiusRoomba(serPort, 0, inf);
 
 end
 
+% The euclidean distance between p1 and p2
+% @p1: [x y]
+% @p2: [x y]
 function dist = distanceFromPoint(p1, p2)
-
 dist = norm(p1 - p2);
-
 end
 
 
@@ -144,6 +146,9 @@ end
 
 
 % Returns the new position of the robot 
+% @last_pos: the last position of the robot
+% @dist_travelled: how far the robot has traveled since the last update
+% @angle: the current orientation of the robot since beginning
 function pos = updatedPosition(last_pos, dist_travelled, angle)
 
 pos = [0 0];
@@ -170,8 +175,17 @@ poc = updatedPosition(pos, diameter, angle);
 end
 
 
-% Updates map
-% wasUpdated = true if a value in map changes, false otherwise
+% Updates map positions with appropriate value (-1 closed, 1 open)
+% @map: the current coordinate space
+% @bLeft, @bRight, @bFront: which bumper is pressed in.
+% @pos: the position of the robot
+% @diameter: the diameter of the robot
+% @angle: the current orientation
+% @wasUpdated: true if a value in map changes, false otherwise
+%
+% Once a grid cell is set to closed, it is closed forever.  However, a cell
+% that has been set to open may later be closed if we run into an object in
+% that position later.
 function [map, wasUpdated] = updateMap(map, bLeft, bRight, bFront, pos, diameter, angle)
 
 wasUpdated = false;
@@ -189,7 +203,7 @@ if idx(1) < 1 || idx(2) < 1 || idx(1) > length(map) || idx(2) > length(map)
     idx = pos_floor + length(map)/2 + 1;
 end
 
-% update if cell is open or unvisted
+% Update if cell is open or unvisted
 prev = map(idx(2), idx(1));
 if (prev > -1)
     if contact
@@ -206,8 +220,7 @@ end
 end
 
 
-% Double the size of the sides of our map, putting the original map in
-% center
+% Quadruples the size of the map, putting the original map in the center
 function new_map = doubleMap(map)
 
 s = length(map);

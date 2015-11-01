@@ -1,42 +1,13 @@
-%==========================================================================
-% Instructions:
-% Each Segment 1-4 is an autonomous
-% block of code that can be run indivudually
-%==========================================================================
-
-%==========================================================================
-% 1. Basic Navigation
-%==========================================================================
-% SetFwdVelRadiusRoomba(serPort, 0.5, inf);     % Move Forward Full Speed
-% SetFwdVelRadiusRoomba(serPort, -0.5, inf);    % Move Backward Full Speed
-% turnAngle(serPort, 0.1, 90)                   % Turn Left
-% turnAngle(serPort, 0.1, -90)                  % Turn Right
-% SetFwdVelRadiusRoomba(serPort, 0, inf);       % Stop
-%==========================================================================
-
-
-%==========================================================================
-% 2. Basic Navigation with Time Constraints
-%==========================================================================    
-% SetFwdVelRadiusRoomba(serPort, 0.5, inf);      % Move Forward
-% pause(1)                                       % Pause for 1 second
-% SetFwdVelRadiusRoomba(serPort, 0, inf);        % Stop
-%==========================================================================
-
-%==========================================================================
-% 3. Read from Sensors
-%==========================================================================
-% [ BumpRight, BumpLeft, WheelDropRight, WheelDropLeft, WheelDropCastor, BumpFront] = BumpsWheelDropsSensorsRoomba(serPort); % Read Bumpers
-% display(BumpLeft)                              % Display Left Bumper Value
-% display(BumpRight)                             % Display Right Bumper Value
-% display(BumpFront)                             % Display Front Bumper Value
-% WallSensor = WallSensorReadRoomba(serPort);    % Read Wall Sensor, Requires WallsSensorReadRoomba file    
-% display(WallSensor)                            % Display WallSensor Value
-%==========================================================================
-
-%==========================================================================
-% 4. While Loop with Maximum Time and Distance Sensor
-%==========================================================================
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% COMS W4733 Computational Aspects of Robotics 2015
+%
+% Homework 1
+%
+% Team number: 4
+% Team leader: Anthony Dubis (ajd2194)
+% Team members: Lilly Wang (lfw2114), Samir Mathrani (sm3619)
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function hw3_team_04( serPort )
 
@@ -149,25 +120,34 @@ pos_floor = floor(pos/diameter);
 idx = pos_floor + length(map)/2 + 1;
 
 n = 1;
-thresh = 2;
-spiral = true;
+num_unvisited = 0;
+thresh = 3;
+spiral = false;
+
 while n <= thresh
-    % Break if we will accses indicies outside of the map
+    % Break if we will access indicies outside of the map
     if idx(1) - n < 1 || idx(2) - n < 1 || idx(1) + n > length(map) || idx(2) + n > length(map)
-        break
+        break;
     end
     
-    % Break if the area to the left and right of the robot is already visited
-    if map(idx(2), idx(1) - n) ~= 0 || map(idx(2), idx(1) + n) ~= 0
-        spiral = false;
-        break
+    if map(idx(2), idx(1) - n) == 0
+        num_unvisited = num_unvisited + 1;
+    end
+    if map(idx(2), idx(1) + n) == 0
+        num_unvisited = num_unvisited + 1;
+    end
+    if map(idx(2) - n, idx(1)) == 0
+        num_unvisited = num_unvisited + 1;
+    end
+    if map(idx(2) + n, idx(1)) == 0
+        num_unvisited = num_unvisited + 1;
     end
     
-    % Break if the area to the top and bottom of the robot is already visited
-    if map(idx(2) - n, idx(1)) ~= 0 || map(idx(2) + n, idx(1)) ~= 0
-        spiral = false;
-        break
-    end
+    n = n + 1;
+end
+
+if num_unvisited >= (thresh * 4 * .70)
+    spiral = true;
 end
 
 end
@@ -176,7 +156,7 @@ end
 % @bLeft = true if the left bumper is in contact
 function randomTurn(serPort, bLeft)
 
-x = randi([30 225]);
+x = randi([30 160]);
 if bLeft
     x = x * -1;
 end

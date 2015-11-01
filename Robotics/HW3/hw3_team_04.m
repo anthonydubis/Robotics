@@ -93,9 +93,10 @@ while toc(tStart) < maxDuration && toc(t_last_disc) < last_disc_thresh
     angle = angle + AngleSensorRoomba(serPort);
     pos = updatedPosition(pos, dist_travelled, angle);
     
+%     Debugging
 %     display(pos);
 %     display(angle);
-    display(map);    
+%     display(map);    
 end
 
 HeatMap(-map); %so red means obstacle

@@ -101,7 +101,15 @@ while toc(tStart) < maxDuration && toc(t_last_disc) < last_disc_thresh
         SetFwdVelRadiusRoomba(serPort, 0.3, inf);
         
         % Begin spiralling after moving away from last POC
-        if distanceFromPoint(lastPOC, pos) > diameter * 8 && toc(t_last_disc) < 1.5
+%         if distanceFromPoint(lastPOC, pos) > diameter * 8 && toc(t_last_disc) < 1.5
+%             isSpiralling = true;
+%             turnRadius = initialSpiralTurnRadius;
+%         end
+        
+        % Begin spiralling when a certain amount of cells around the robot
+        % are unvisited
+        spiral = shouldSpiral(map, pos, diameter);
+        if spiral
             isSpiralling = true;
             turnRadius = initialSpiralTurnRadius;
         end
@@ -131,6 +139,38 @@ function dist = distanceFromPoint(p1, p2)
 dist = norm(p1 - p2);
 end
 
+% Determines if the robot should start spiraling or not
+% @map: the current coordinate space
+% @pos: the position of the robot
+% @diameter: the diameter of the robot
+function spiral = shouldSpiral(map, pos, diameter)
+
+pos_floor = floor(pos/diameter);
+idx = pos_floor + length(map)/2 + 1;
+
+n = 1;
+thresh = 2;
+spiral = true;
+while n <= thresh
+    % Break if we will accses indicies outside of the map
+    if idx(1) - n < 1 || idx(2) - n < 1 || idx(1) + n > length(map) || idx(2) + n > length(map)
+        break
+    end
+    
+    % Break if the area to the left and right of the robot is already visited
+    if map(idx(2), idx(1) - n) ~= 0 || map(idx(2), idx(1) + n) ~= 0
+        spiral = false;
+        break
+    end
+    
+    % Break if the area to the top and bottom of the robot is already visited
+    if map(idx(2) - n, idx(1)) ~= 0 || map(idx(2) + n, idx(1)) ~= 0
+        spiral = false;
+        break
+    end
+end
+
+end
 
 % Make a random turn
 % @bLeft = true if the left bumper is in contact

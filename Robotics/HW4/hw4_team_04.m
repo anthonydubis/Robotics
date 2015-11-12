@@ -1,15 +1,8 @@
 function hw4_team_04( R )
     % @param R - the robot (serPort)
     
-    [world, obstacles] = get_obstacles()
+    [world, obstacles] = get_obstacles();
     [start, goal] = start_and_goal();
-    for k=1:length(obstacles)
-        obstacles{k}
-    end
-end
-
-function obstacle = get_obstacle(vertices_vector)
-    obstacle = vec2mat(vertices_vector,2);
 end
 
 % Get the obstacles from the provided file
@@ -24,7 +17,7 @@ function [world, obstacles] = get_obstacles()
     
     while i <= n
         lines = data(idx) * 2;
-        obstacles{i} = get_obstacle(data(idx+1:idx+lines,:));
+        obstacles{i} = vec2mat((data(idx+1:idx+lines,:)), 2);
         idx = idx + lines + 1;
         i = i + 1;
     end

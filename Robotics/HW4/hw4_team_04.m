@@ -22,31 +22,21 @@ function hw4_team_04( R )
     thresh = 0.1;                % Threshold distance for similarity
     
     while tvi <= n
+        % Get the target point
         target = vertices(tvi,:);
+        
+        % Test to see if we've reached the target point
         if pointsAreSimilar(curr_pos, target, thresh)
+            % If we've reached the last point, we're at the goal
             if tvi == n
                 break;
             end
             
-            % Debugging
-            fprintf('Points are similar');
-            display(tvi);
-            display(target);
-            display(curr_pos);
-            display(curr_angle);
-            
+            % Move to the next point
             tvi = tvi + 1;
             target = vertices(tvi,:);
-            
-            fprintf('New target');
-            display(target);
-            
-            % turnTowardsTarget(R, curr_pos, target, curr_angle);
-            % DistanceSensorRoomba(R);
-            
-            fprintf('New angle after turn');
-            display(curr_angle);
         end
+        
         turnTowardsTarget(R, curr_pos, target, curr_angle);
         SetFwdVelRadiusRoomba(R, 0.3, inf);
         pause(0.1);
@@ -59,14 +49,16 @@ function hw4_team_04( R )
     SetFwdVelRadiusRoomba(R, 0, inf)
 end
 
+% This function will turn the robot towards the goal if it's current
+% orientation is off by more than 5 degrees. This function is called with
+% each iteration so the robot can adjust its orientation if it's gone off
+% course.
 function turnTowardsTarget(R, curr_pos, target, curr_angle)
     theta = atan2(target(2) - curr_pos(2), target(1) - curr_pos(1));
     turn_angle = theta - curr_angle;
     
     % Adjust our angle if we're off by more than 5 degrees
     if abs(turn_angle) > .087
-        fprintf('About to make the turn');
-        display(turn_angle);
         turnAngle(R, 0.2, (turn_angle * 180 / pi));
     end
 end

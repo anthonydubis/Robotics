@@ -47,7 +47,7 @@ function hw4_team_04( R )
         
         dist_travelled = DistanceSensorRoomba(R);
         curr_angle = curr_angle + AngleSensorRoomba(R);
-        curr_pos = updatedPosition(curr_pos, dist_travelled, curr_angle)
+        curr_pos = updatedPosition(curr_pos, dist_travelled, curr_angle);
     end
     
     SetFwdVelRadiusRoomba(R, 0, inf)

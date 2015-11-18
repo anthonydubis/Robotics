@@ -13,7 +13,7 @@ be run as follows:
 
 java PathPlanner [txt file world and obstacles] [txt file start and goal]
 
-It procudes a path.txt files which contains the points in the shortest path.
+It produces a path.txt file which contains the points in the shortest path.
 This file should be placed in the same dir as the MATLAB program and then
 the MATLAB program directs the robot to follow the path specified.
 

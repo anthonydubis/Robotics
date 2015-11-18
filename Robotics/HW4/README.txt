@@ -3,8 +3,8 @@
 % Homework 4
 %
 % Team number: 4
-% Team leader: Anthony Dubis (ajd2194)
-% Team members: Lilly Wang (lfw2114), Samir Mathrani (sm3619)
+% Team leader: Samir Mathrani (sm3619)
+% Team members: Lilly Wang (lfw2114), Anthony Dubis (ajd2194)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

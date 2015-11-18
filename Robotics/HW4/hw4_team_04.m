@@ -47,7 +47,7 @@ function hw4_team_04( R )
         
         dist_travelled = DistanceSensorRoomba(R);
         curr_angle = curr_angle + AngleSensorRoomba(R);
-        curr_pos = updatedPosition(curr_pos, dist_travelled, curr_angle);
+        curr_pos = updatedPosition(curr_pos, dist_travelled, curr_angle)
     end
     
     SetFwdVelRadiusRoomba(R, 0, inf)
@@ -60,6 +60,14 @@ end
 function turnTowardsTarget(R, curr_pos, target, curr_angle)
     theta = atan2(target(2) - curr_pos(2), target(1) - curr_pos(1));
     turn_angle = theta - curr_angle;
+    
+    while turn_angle > (2 * pi)
+        turn_angle = turn_angle - (2 * pi);
+    end
+    
+    while turn_angle < -(2 * pi)
+        turn_angle = turn_angle + (2 * pi);
+    end
     
     % Adjust our angle if we're off by more than 5 degrees
     if abs(turn_angle) > .087

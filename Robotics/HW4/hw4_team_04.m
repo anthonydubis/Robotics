@@ -21,6 +21,10 @@ function hw4_team_04( R )
     curr_angle = pi / 2;         % The current angle - start facing +y
     thresh = 0.1;                % Threshold distance for similarity
     
+    % Zero out the sensors
+    DistanceSensorRoomba(R);
+    AngleSensorRoomba(R);
+    
     while tvi <= n
         % Get the target point
         target = vertices(tvi,:);

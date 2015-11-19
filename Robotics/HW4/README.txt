@@ -9,9 +9,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Our java program, PathPlanner.java takes care of the path finding. Placing all 
-.java files submitted in the same directory and then run the following command
+.java files submitted in the same directory and then run the following commands
 with the appropriate arguments:
 
+javac *.java
 java PathPlanner [txt file world and obstacles] [txt file start and goal]
 
 It produces a path.txt file which contains the points in the shortest path.

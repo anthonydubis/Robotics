@@ -20,3 +20,9 @@ This file should be placed in the same dir as the MATLAB program and then
 the MATLAB program directs the robot to follow the path specified. The MATLAB
 function, hw4_team_04( R ), is run by passing in the robot instance as normal.
 It looks for the path.txt, which is a hardcoded filename within the function.
+
+All the code that implements the algorithms for this homework can be found in
+PathPlanner.java (more details below):
+- Reflection Algorithm: grownObstacles (line 254)
+- Convex Hull Algorithm: grahamAlg (line 279)
+- Dijkstra's algorithm: dijkstras (line 433)

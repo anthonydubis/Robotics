@@ -1,30 +1,38 @@
 function hw5_part1_team_04(R)
-    close all;
+    close all; % Closes any images you had open previously
+    
     img_path = 'http://192.168.0.102/snapshot.cgi?user=admin&pwd=&resolution=10&rate=0';
-    img_path = 'stop.jpg';
+    img_path = 'stop.jpg'; % Using test image for now
 
-    [t_size, color, t_pos] = get_object_info(img_path);
-
+    [t_area, t_pos, hue] = get_initial_object_info(img_path);
+    
+    while true
+        [n_area, n_pos] = get_object_info(img_path, hue);
+    end
 end
 
-function [t_size, t_hue, t_pos] = get_object_info(img_path)
+% Used to get the initial object information given the user selection
+function [area, pos, hue] = get_initial_object_info(img_path)
     img = imread(img_path);
     hsv = rgb2hsv(img);
-    sz = size(img);
     
     % Get a point on the object from the user
     imshow(img);
     pt = round(ginput(1));
     
     % Threshold to find the object
-    t_hue = hsv(pt(2),pt(1),1);
-    BW = process_image_for_hue(hsv, t_hue);
+    hue = hsv(pt(2),pt(1),1);
+    BW = process_image_for_hue(hsv, hue);
     imshow(BW);
     
     object = get_largest_object_stats(BW);
     
-    t_size = object.FilledArea
-    t_pos = object.Centroid
+    area = object.FilledArea;
+    pos = object.Centroid;
+end
+
+% Used to get info about the object that matches the given hue
+function [size, pos] = get_object_info(img_path, hue)
 end
 
 function processed = process_image_for_hue(hsv, hue)

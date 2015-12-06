@@ -2,8 +2,8 @@ function hw5_doortracker_team_04( R )
     % close all;
     
     img_path = 'ex/im10.png';
-    sample_image(img_path);
-    % [area, cent, hue, img_sz] = get_initial_object_info(img_path);
+    % sample_image(img_path);
+    [area, cent, hue, img_sz] = get_initial_object_info(img_path);
 end
 
 function sample_image(img_path)
@@ -43,11 +43,11 @@ end
 function processed = process_image_for_doors(hsv)
     % Create BW image with 1s where the image has the hue within range of
     % the user's specification and the saturation/value is not close to 0
-    processed = hsv(:,:,1) > .58 & hsv(:,:,1) < .7 & hsv(:,:,2) > .31 ...
-        & hsv(:,:,2) < .43 & hsv(:,:,3) > .21 & hsv(:,:,3) < .41;
+    processed = hsv(:,:,1) > .56 & hsv(:,:,1) < .7 & hsv(:,:,2) > .25 ...
+        & hsv(:,:,2) < .44 & hsv(:,:,3) > .21 & hsv(:,:,3) < .43;
     
     % Remove noise
-    processed = bwareaopen(processed, 20);
+    processed = bwareaopen(processed, 50);
 end
 
 function processed = process_image_for_rgb(img, rgb)
@@ -59,7 +59,7 @@ function processed = process_image_for_rgb(img, rgb)
         & img(:,:,2) > rgb(2) - g_range & img(:,:,2) < rgb(2) + g_range ...
         & img(:,:,3) > rgb(3) - b_range & img(:,:,3) < rgb(3) + g_range;
     
-    processed = bwareaopen(processed, 100);
+    processed = bwareaopen(processed, 50);
     
     imshow(processed);
 end

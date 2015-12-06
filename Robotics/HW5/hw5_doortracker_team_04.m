@@ -1,8 +1,22 @@
 function hw5_doortracker_team_04( R )
-    close all;
+    % close all;
     
     img_path = 'ex/im10.png';
-    [area, cent, hue, img_sz] = get_initial_object_info(img_path);
+    sample_image(img_path);
+    % [area, cent, hue, img_sz] = get_initial_object_info(img_path);
+end
+
+function sample_image(img_path)
+    img = imread(img_path);
+    hsv = rgb2hsv(img);
+    figure; imshow(img);
+    pts = ginput;
+    pts = round(pts);
+    
+    for i=1:length(pts)
+        p = pts(i,:);
+        hsv_vals = [hsv(p(2),p(1),1) hsv(p(2),p(1),2) hsv(p(2),p(1),3)]
+    end
 end
 
 % Used to get the initial object information given the user selection
@@ -14,7 +28,6 @@ function [area, cent, hue, img_sz] = get_initial_object_info(img_path)
     
     % Get a point on the object from the user
     figure; imshow(img);
-    pt = round(ginput(1));
     
 %     rgb_val = zeros(1,3);
 %     rgb_val(1) = img(pt(2),pt(1),1);
@@ -23,24 +36,18 @@ function [area, cent, hue, img_sz] = get_initial_object_info(img_path)
 %     process_image_for_rgb(img, rgb_val);
     
     % Threshold to find the object
-    hue = hsv(pt(2),pt(1),1);
-    figure; imshow(hsv(:,:,1) < .3);
-    % figure; imshow(hsv(:,:,2));
-    % figure; imshow(hsv(:,:,3));
-    BW = process_image_for_hue(hsv, hue);
+    BW = process_image_for_doors(hsv);
     figure; imshow(BW);
 end
 
-function processed = process_image_for_hue(hsv, hue)
-    range = 0.06;
-
+function processed = process_image_for_doors(hsv)
     % Create BW image with 1s where the image has the hue within range of
     % the user's specification and the saturation/value is not close to 0
-    processed = hsv(:,:,1) > hue-range & hsv(:,:,1) < hue+range ...
-        & hsv(:,:,2) > .3 & hsv(:,:,3) > .15;
+    processed = hsv(:,:,1) > .58 & hsv(:,:,1) < .7 & hsv(:,:,2) > .31 ...
+        & hsv(:,:,2) < .43 & hsv(:,:,3) > .21 & hsv(:,:,3) < .41;
     
     % Remove noise
-    processed = bwareaopen(processed, 100);
+    processed = bwareaopen(processed, 20);
 end
 
 function processed = process_image_for_rgb(img, rgb)

@@ -29,12 +29,6 @@ function [area, cent, hue, img_sz] = get_initial_object_info(img_path)
     % Get a point on the object from the user
     figure; imshow(img);
     
-%     rgb_val = zeros(1,3);
-%     rgb_val(1) = img(pt(2),pt(1),1);
-%     rgb_val(2) = img(pt(2),pt(1),2);
-%     rgb_val(3) = img(pt(2),pt(1),3);
-%     process_image_for_rgb(img, rgb_val);
-    
     % Threshold to find the object
     BW = process_image_for_doors(hsv);
     figure; imshow(BW);
@@ -48,18 +42,4 @@ function processed = process_image_for_doors(hsv)
     
     % Remove noise
     processed = bwareaopen(processed, 300);
-end
-
-function processed = process_image_for_rgb(img, rgb)
-    r_range = rgb(1) * .3;
-    g_range = rgb(2) * .3;
-    b_range = rgb(3) * .3;
-    
-    processed = img(:,:,1) > rgb(1) - r_range & img(:,:,1) < rgb(1) + r_range ...
-        & img(:,:,2) > rgb(2) - g_range & img(:,:,2) < rgb(2) + g_range ...
-        & img(:,:,3) > rgb(3) - b_range & img(:,:,3) < rgb(3) + g_range;
-    
-    processed = bwareaopen(processed, 50);
-    
-    imshow(processed);
 end

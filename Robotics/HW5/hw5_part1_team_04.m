@@ -12,13 +12,22 @@ function hw5_part1_team_04(R)
         if should_realign(t_cent, n_cent, img_sz)
             realign(R, t_cent, n_cent, img_sz);
         else
-            keep_distance(R, t_area, n_area, img_sz);
+            keep_distance(R, t_area, n_area);
         end
     end
 end
 
-function keep_distance(R, t_area, n_area, img_sz)
-    
+% Keeps the robot within a fixed distance of the object, according to some
+% threshold.
+function keep_distance(R, t_area, n_area)
+    percentage = n_area / t_area;
+    if percentage < .85
+        SetFwdVelRadiusRoomba(R, 0.1, inf);
+    elseif percentage > 1.15
+        SetFwdVelRadiusRoomba(R, -0.1, inf);
+    else
+        SetFwdVelRadiusRoomba(R, 0, inf);
+    end
 end
 
 % Returns true if the robot needs to realign itself

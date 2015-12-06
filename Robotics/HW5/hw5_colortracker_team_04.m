@@ -100,6 +100,8 @@ end
 function processed = process_image_for_hue(hsv, hue)
     range = 0.06;
 
+    % Create BW image with 1s where the image has the hue within range of
+    % the user's specification and the saturation/value is not close to 0
     processed = hsv(:,:,1) > hue-range & hsv(:,:,1) < hue+range ...
         & hsv(:,:,2) > .05 & hsv(:,:,3) > .05;
     

@@ -1,4 +1,4 @@
-function hw5_part1_team_04(R)
+function hw5_colortracker_team_04(R)
     close all; % Closes any images you had open previously
     
     img_path = 'http://192.168.0.102/snapshot.cgi?user=admin&pwd=&resolution=10&rate=0';

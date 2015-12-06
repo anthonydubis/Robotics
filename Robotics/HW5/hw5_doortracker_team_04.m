@@ -1,7 +1,7 @@
 function hw5_doortracker_team_04( R )
-    % close all;
+    close all;
     
-    img_path = 'ex/im10.png';
+    img_path = 'ex/im34.png';
     % sample_image(img_path);
     [area, cent, hue, img_sz] = get_initial_object_info(img_path);
 end
@@ -47,7 +47,7 @@ function processed = process_image_for_doors(hsv)
         & hsv(:,:,2) < .44 & hsv(:,:,3) > .21 & hsv(:,:,3) < .43;
     
     % Remove noise
-    processed = bwareaopen(processed, 50);
+    processed = bwareaopen(processed, 300);
 end
 
 function processed = process_image_for_rgb(img, rgb)

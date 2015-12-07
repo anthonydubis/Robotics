@@ -13,6 +13,7 @@ function hw5_colortracker_team_04(R)
             realign(R, t_cent, n_cent, img_sz);
         else
             keep_distance(R, t_area, n_area);
+            pause(0.1);
         end
     end
 end

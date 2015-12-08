@@ -7,6 +7,8 @@ function hw5_colortracker_team_04(R)
     [t_area, t_cent, hue, img_sz] = get_initial_object_info(img_path);
     
     while true
+        % Given the hue we got above, get information on the largest object
+        % with that hue in the latest picture
         [n_area, n_cent] = get_object_info(img_path, hue);
         
         if should_realign(t_cent, n_cent, img_sz)
@@ -102,7 +104,7 @@ function processed = process_image_for_hue(hsv, hue)
     range = 0.06;
 
     % Create BW image with 1s where the image has the hue within range of
-    % the user's specification and the saturation/value is not close to 0
+    % the specified huge and the saturation/value is not close to 0
     processed = hsv(:,:,1) > hue-range & hsv(:,:,1) < hue+range ...
         & hsv(:,:,2) > .05 & hsv(:,:,3) > .05;
     

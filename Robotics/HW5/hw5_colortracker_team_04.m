@@ -52,15 +52,15 @@ function realign(R, t_cent, n_cent, img_sz)
 end
 
 % Returns the degrees current centroid is off from the target centroid
-% t_cent is the target centroid
-% n_cent is the new centroid
-% img_sz is the image resolution (ex. 320 x 480)
+% t_cent is the target centroid (x,y with the top left being the origin)
+% n_cent is the new centroid (x,y with the top left being the origin)
+% img_sz is the image resolution (height x width in MATLAB)
 % Per the camera, the field of view is 67 degrees
 function degrees = degrees_misaligned(t_cent, n_cent, img_sz)
     field_of_view = 67;
     img_width = img_sz(2);
     pixels_per_degree = img_width / field_of_view;
-    diff = t_cent(2) - n_cent(2);
+    diff = n_cent(1) - t_cent(1);
     degrees = diff / pixels_per_degree;
 end
 

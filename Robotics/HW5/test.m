@@ -1,7 +1,9 @@
 function test( R )
-%TEST Summary of this function goes here
-%   Detailed explanation goes here
-    turnAngle(R, 0.1, -90);
-
+% Test whatever you want here
+    while true
+        img_path = 'http://192.168.0.102/snapshot.cgi?user=admin&pwd=&resolution=10&rate=0';
+        img = imread(img_path); 
+        imshow(img);
+    end
 end
 

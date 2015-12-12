@@ -1,8 +1,8 @@
 function hw5_colortracker_team_04(R)
     close all; % Closes any images you had open previously
     
-    img_path = 'http://192.168.0.102/snapshot.cgi?user=admin&pwd=&resolution=10&rate=0';
-    img_path = 'stop.jpg'; % Using test image for now
+    img_path = 'http://192.168.0.101/snapshot.cgi?user=admin&pwd=&resolution=10&rate=0';
+    % img_path = 'stop.jpg'; % Using test image for now
 
     [t_area, t_cent, hue, img_sz] = get_initial_object_info(img_path);
     
@@ -41,14 +41,14 @@ function realign = should_realign(t_cent, n_cent, img_sz)
     realign = false;
     
     degrees = degrees_misaligned(t_cent, n_cent, img_sz);
-    if abs(degrees) > 5
+    if abs(degrees) > 15
         realign = true;
     end
 end
 
 function realign(R, t_cent, n_cent, img_sz)
     degrees = degrees_misaligned(t_cent, n_cent, img_sz);
-    turnAngle(R, 0.1, degrees);
+    turnAngle(R, 0.1, -degrees);
 end
 
 % Returns the degrees current centroid is off from the target centroid

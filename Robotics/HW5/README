@@ -1,0 +1,87 @@
+-------------
+Color Tracker
+-------------
+
+------------
+Door Tracker
+------------
+
+The general algorithm for the door tracker is as follows:
+
+1. Begin by traveling down the middle of the hall with upcoming doors
+
+During this phase, possible doors will appear as white in the processed image.
+These objects are identified based on a range of HSV values that were determined
+by sampling different points on sample doors.
+
+2. Stop when a door is within an approachable distance
+
+Since we only have a forward looking camera, we can never tell when a door is
+directly to our left or right (without constantly turning, which would be slow
+and error prone). Instead, we consider a door to be within an approachable
+distance when its bounding box, the smallest box that contains it, is on the
+leftmost or rightmost side of our vield of vision. Once this condition is met,
+the robot stops for a second.
+
+3. Move forward some predetermined distance to get the door directly on our left
+or right.
+
+Again, without cameras on our left or right side, we chose to estimate the
+amount of distance we would need to travel forward once condition (2) above is
+met. When we stop after traveling this distance, this door should be on one of
+our sides.
+
+4. Turn to face the door
+
+The robot then turns to face the door directly.
+
+5. Center the robot on the middle of the door
+
+6. Bump up against the door twice
+
+7. Beep
+
+8. Wait for the door to open then move through
+
+While waiting, the robot continues to process images from the camera. If the
+bounding box of the door is still in the way (in the center), the door hasn't
+been opened. If it's not in the center, the door has been opened and we move
+forward a pre-defined distance then stop.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Debugging Notes
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+The black/white (BW) image is shown everytime an image is processed so you can
+see what the robot sees (white objects are potential doors).
+
+I make heavy use of the regionprops() function built-in to MATLAB. Here's its
+documentation http://www.mathworks.com/help/images/ref/regionprops.html.  Look
+for keywords like Centroid, BoundingBox, Orientation, AreaFilled, etc.
+
+Sometimes, you'll see objects that are similar to doors in color show up in the
+BW images. I tried to filter these out with orientation (see the code and
+comments).
+
+While this code is much longer than Part 1, it shoudl be much easier to debug
+because it has natural debugging points. I've labeled these in the main function
+(hw5_doortracker_team_04) and have the function stopping/returning after each
+one. This means that we can progressively make sure each part is working. For
+example, we'll start by making sure that as the robot is traveling down the
+hall, it stops once a door is in the leftmost or rightmost part of its field of
+vision. Once that's working, we can remove that debugging point and return
+statement and then let the robot get to the same point above, then move forward
+an addition 5-8 meters until its directly in front of the door. Once we've
+debugged that, remove the point and then make sure the robot proceeds through
+the above two stages and then turns to directly face the door.  And so on...
+
+Finally, hopefully we don't need to do this, but not a big deal if we do:
+
+I based on the HSV ranges for identifying doors on the images that the TAs
+provided (link on piazza). If for some reason these images are dramatically
+different than those our robot is capturing, we'll need to do more sampling.
+This can be done by using the "sample_image()" function at the end of the file.
+to use, call it at the start of the function. You'll see an image from the
+camera where you can select various points on doors in the image (click with the
+house) then click enter on the keyboard. You'll see the corresponding HSV values
+print to the console. New ranges can be based on these samples.

@@ -1,8 +1,9 @@
 function hw5_doortracker_team_04( R )
     close all;
     
-    % Replace this with the camera image path
-    img_path = 'ex/im14.png';
+    %img_path = 'ex/im14.png';
+    img_path = 'http://192.168.0.101/snapshot.cgi?user=admin&pwd=&resolution=10&rate=0';
+    
     turn = 0;
     
     while true
@@ -18,7 +19,7 @@ function hw5_doortracker_team_04( R )
                 
                 % DEBUG POINT - There is a door on the left or right most
                 % side of our field of view.
-                return;
+                %return;
                 
                 break;
             end
@@ -31,34 +32,21 @@ function hw5_doortracker_team_04( R )
         % DEBUG POINT - We should now be in front of the door, but still
         % facing down the hallway. Look in move_to_front_of_door() to play
         % with the distance we travel here (it's a guess)
-        returnl;
+        %return;
         
         turn_ninety_degrees(R, turn);
         
-        % DEBUG POINT - We should now be facing the general directin of the
-        % door
-        return;
-
         img = imread(img_path);
         [door_cent, found] = get_door_cent(img);
-        if ~found
-            % Somehow, you lost the door. Straight out and continue down the
-            % hall again.
-            turn_ninety_degrees(R, turn * -1);
-            continue;
+        if found
+            center_on_object(R, door_cent, img);
         end
-        
-        center_on_object(R, door_cent, img);
-        
-        % DEBUG POINT - We should still be facing the door, but hopefully
-        % pointing towards its center.
-        return;
         
         knock_knock(R);
         
         % DEBUG POINT - We should have just bumped up against the door
         % twice, then beeped.
-        return;
+        %return;
         
         move_inside_upon_opening(R, img_path);
         
@@ -91,22 +79,22 @@ end
 function move_inside_upon_opening(R, img_path)
     open = false;
     
+    img = imread(img_path);
+    sz = size(img);
+    img_sz = sz(1) * sz(2);
+    base_gray = rgb2gray(img);
+    
     % Do nothing while the door is still in our face
     while ~open
-        img = imread(img_path);
-        sz = size(img);
-        cent_x = sz(2) / 2;
-        BW = process_hsv_image_for_doors(rgb2hsv(img));
-        stats = regionprops(BW, 'BoundingBox');
+        curr_gray = rgb2gray(imread(img_path));
         
-        open = true;
-        for i=1:length(stats)
-            obj = stats(i);
-            bb = obj.BoundingBox;
-            if bb(1) < cent_x && cent_x < bb(1)+bb(3)
-                open = false;
-                break;
-            end
+        diff = base_gray - curr_gray;
+        diff = abs(diff);
+        diff = im2bw(diff, 0.20);
+        
+        s = sum(sum(diff));
+        if (s / img_sz > .20)
+            open = true;
         end
     end
     
@@ -147,7 +135,7 @@ end
 % At this point, we should be centered on the door
 function knock_knock(R)
     % Reset sensors
-    [~, ~, ~, ~, ~, ~] = BumpsWheelDropsSensorsRoomba(serPort);
+    [~, ~, ~, ~, ~, ~] = BumpsWheelDropsSensorsRoomba(R);
     
     move_to_bump(R);
     back_up(R);
@@ -209,7 +197,7 @@ end
 % to get us in front of the door.
 function move_to_front_of_door(R)
     DistanceSensorRoomba(R);
-    m_to_door_front = 8;
+    m_to_door_front = 3.2;
     
     while m_to_door_front > 0
         SetFwdVelRadiusRoomba(R, .1, inf);
@@ -272,7 +260,7 @@ function processed = process_hsv_image_for_doors(hsv)
     % Remove noise
     processed = bwareaopen(processed, 300);
     
-    imshow(BW);
+    imshow(processed);
 end
 
 % Helper function to sample the HSV at various points on image

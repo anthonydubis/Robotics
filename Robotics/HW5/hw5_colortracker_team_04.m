@@ -1,8 +1,17 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% COMS W4733 Computational Aspects of Robotics 2015
+%
+% Homework 5 - Color Tracker
+%
+% Team number: 4
+% Team leader: Anthony Dubis (ajd2194)
+% Team members: Lilly Wang (lfw2114), Samir Mathrani (sm3619)
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function hw5_colortracker_team_04(R)
     close all; % Closes any images you had open previously
     
     img_path = 'http://192.168.0.101/snapshot.cgi?user=admin&pwd=&resolution=10&rate=0';
-    % img_path = 'stop.jpg'; % Using test image for now
 
     [t_area, t_cent, hue, img_sz] = get_initial_object_info(img_path);
     

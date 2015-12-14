@@ -1,7 +1,16 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% COMS W4733 Computational Aspects of Robotics 2015
+%
+% Homework 5 - Door Tracker
+%
+% Team number: 4
+% Team leader: Anthony Dubis (ajd2194)
+% Team members: Lilly Wang (lfw2114), Samir Mathrani (sm3619)
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function hw5_doortracker_team_04( R )
     close all;
     
-    %img_path = 'ex/im14.png';
     img_path = 'http://192.168.0.101/snapshot.cgi?user=admin&pwd=&resolution=10&rate=0';
     turn = 0;
     
@@ -20,13 +29,6 @@ function hw5_doortracker_team_04( R )
 
     move_to_front_of_door(R);
     turn_ninety_degrees(R, turn);
-
-    img = imread(img_path);
-%     [door_cent, found] = get_door_cent(img);
-%     if found
-%         center_on_object(R, door_cent, img);
-%     end
-
     knock_knock(R);
     move_inside_upon_opening(R, img_path);
     

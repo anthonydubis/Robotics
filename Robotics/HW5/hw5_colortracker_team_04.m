@@ -9,7 +9,12 @@ function hw5_colortracker_team_04(R)
     while true
         % Given the hue we got above, get information on the largest object
         % with that hue in the latest picture
-        [n_area, n_cent] = get_object_info(img_path, hue);
+        [found, n_area, n_cent] = get_object_info(img_path, hue);
+        
+        % If the object left view, skip this image
+        if ~found
+            continue;
+        end
         
         if should_realign(t_cent, n_cent, img_sz)
             realign(R, t_cent, n_cent, img_sz);
@@ -87,7 +92,7 @@ function [area, cent, hue, img_sz] = get_initial_object_info(img_path)
 end
 
 % Used to get info about the object that matches the given hue
-function [area, cent] = get_object_info(img_path, hue)
+function [found, area, cent] = get_object_info(img_path, hue)
     img = imread(img_path);
     hsv = rgb2hsv(img);
     
@@ -96,6 +101,12 @@ function [area, cent] = get_object_info(img_path, hue)
     
     object = get_largest_object_stats(BW);
     
+    if object == 0
+        found = false;
+        return;
+    end
+    
+    found = true;
     area = object.FilledArea;
     cent = object.Centroid;
 end
@@ -114,6 +125,11 @@ end
 
 function object = get_largest_object_stats(BW)
     stats = regionprops(BW, 'Centroid', 'FilledArea');
+    
+    if isempty(stats)
+        object = 0;
+        return;
+    end
     
     object = stats(1);
     for i=1:length(stats)

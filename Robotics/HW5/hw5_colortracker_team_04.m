@@ -83,7 +83,7 @@ function [area, cent, hue, img_sz] = get_initial_object_info(img_path)
     object = get_largest_object_stats(BW);
     
     area = object.FilledArea;
-    cent = object.Centroid;
+    cent = [(img_sz(2)/2) (img_sz(1)/2)];
 end
 
 % Used to get info about the object that matches the given hue

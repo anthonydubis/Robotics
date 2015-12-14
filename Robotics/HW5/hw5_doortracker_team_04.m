@@ -22,10 +22,10 @@ function hw5_doortracker_team_04( R )
     turn_ninety_degrees(R, turn);
 
     img = imread(img_path);
-    [door_cent, found] = get_door_cent(img);
-    if found
-        center_on_object(R, door_cent, img);
-    end
+%     [door_cent, found] = get_door_cent(img);
+%     if found
+%         center_on_object(R, door_cent, img);
+%     end
 
     knock_knock(R);
     move_inside_upon_opening(R, img_path);
@@ -171,7 +171,7 @@ end
 % to get us in front of the door.
 function move_to_front_of_door(R)
     DistanceSensorRoomba(R);
-    m_to_door_front = 3.2;
+    m_to_door_front = 3.6;
     
     while m_to_door_front > 0
         SetFwdVelRadiusRoomba(R, .1, inf);

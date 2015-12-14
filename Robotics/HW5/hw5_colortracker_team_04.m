@@ -30,9 +30,9 @@ end
 function keep_distance(R, t_area, n_area)
     percentage = n_area / t_area;
     if percentage < .85
-        SetFwdVelRadiusRoomba(R, 0.1, inf);
+        SetFwdVelRadiusRoomba(R, 0.2, inf);
     elseif percentage > 1.15
-        SetFwdVelRadiusRoomba(R, -0.1, inf);
+        SetFwdVelRadiusRoomba(R, -0.2, inf);
     else
         SetFwdVelRadiusRoomba(R, 0, inf);
     end
@@ -101,7 +101,7 @@ function [found, area, cent] = get_object_info(img_path, hue)
     
     object = get_largest_object_stats(BW);
     
-    if object == 0
+    if isempty(object)
         found = false;
         return;
     end

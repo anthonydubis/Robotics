@@ -3,58 +3,32 @@ function hw5_doortracker_team_04( R )
     
     %img_path = 'ex/im14.png';
     img_path = 'http://192.168.0.101/snapshot.cgi?user=admin&pwd=&resolution=10&rate=0';
-    
     turn = 0;
     
+    % Find a door to approach
     while true
-        % Find a door to approach
-        while true
-            img = imread(img_path);
-            turn = should_approach_door(img);
-            if turn
-                % Stopping can likely be removed since we're going to go
-                % forward a bit more anyway, but do it for debugging
-                SetFwdVelRadiusRoomba(R, 0, inf);
-                pause(1);
-                
-                % DEBUG POINT - There is a door on the left or right most
-                % side of our field of view.
-                %return;
-                
-                break;
-            end
-            drive_down_hallway(R, img);
-            pause(0.1);
-        end
-
-        move_to_front_of_door(R);
-        
-        % DEBUG POINT - We should now be in front of the door, but still
-        % facing down the hallway. Look in move_to_front_of_door() to play
-        % with the distance we travel here (it's a guess)
-        %return;
-        
-        turn_ninety_degrees(R, turn);
-        
         img = imread(img_path);
-        [door_cent, found] = get_door_cent(img);
-        if found
-            center_on_object(R, door_cent, img);
+        turn = should_approach_door(img);
+        if turn
+            SetFwdVelRadiusRoomba(R, 0, inf);
+            pause(1);
+            break;
         end
-        
-        knock_knock(R);
-        
-        % DEBUG POINT - We should have just bumped up against the door
-        % twice, then beeped.
-        %return;
-        
-        move_inside_upon_opening(R, img_path);
-        
-        % DEBUG POINT - Once the door is open, the robot should move into
-        % the room.
-        
-        break;
+        SetFwdVelRadiusRoomba(R, 0.1, inf);
+        pause(0.1);
     end
+
+    move_to_front_of_door(R);
+    turn_ninety_degrees(R, turn);
+
+    img = imread(img_path);
+    [door_cent, found] = get_door_cent(img);
+    if found
+        center_on_object(R, door_cent, img);
+    end
+
+    knock_knock(R);
+    move_inside_upon_opening(R, img_path);
     
     SetFwdVelRadiusRoomba(R, 0, inf);
 end
@@ -242,11 +216,6 @@ function turn = should_approach_door(img)
             end;
         end
     end
-end
-
-% Keep the robot going straight down the middle of the hallway
-function drive_down_hallway(R, img)
-    SetFwdVelRadiusRoomba(R, 0.1, inf);
 end
 
 % Accepts the HSV image and returns a BW image with white objects being
